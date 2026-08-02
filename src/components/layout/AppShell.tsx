@@ -6,7 +6,7 @@ import {
   BarChart3,
   CalendarDays,
   Folder,
-  Bookmark,
+  Info,
   Settings2,
   Bell,
   Search,
