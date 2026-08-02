@@ -131,10 +131,17 @@ export function LuckLiveProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.toggle("dark", settings.theme === "dark");
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const apply = () => {
+      const dark = settings.theme === "system" ? mq.matches : settings.theme === "dark";
+      root.classList.toggle("dark", dark);
+    };
+    apply();
+    mq.addEventListener("change", apply);
     root.style.fontSize =
       settings.fontSize === "small" ? "15px" : settings.fontSize === "large" ? "18px" : "16px";
     root.dir = settings.language === "ar" ? "rtl" : "ltr";
+    root.lang = settings.language;
     if (settings.accent === "teal") {
       root.style.setProperty("--primary", "oklch(0.667 0.11 175)");
       root.style.setProperty("--ring", "oklch(0.667 0.11 175)");
@@ -142,7 +149,9 @@ export function LuckLiveProvider({ children }: { children: ReactNode }) {
       root.style.removeProperty("--primary");
       root.style.removeProperty("--ring");
     }
+    return () => mq.removeEventListener("change", apply);
   }, [settings.theme, settings.fontSize, settings.language, settings.accent]);
+
 
   const value = useMemo<Store>(() => {
     const done = tasks.filter((t) => t.done).length;
