@@ -18,6 +18,14 @@ export type Task = {
   done: boolean;
 };
 
+const defaultTasks: Task[] = [
+  { id: "t1", title: "Draft the weekly product update", project: "Personal", priority: "high", due: "Today", done: false },
+  { id: "t2", title: "Finalize Q3 launch brief", project: "Product launch", priority: "high", due: "Today", done: false },
+  { id: "t3", title: "Reply to design review notes", project: "Team ops", priority: "medium", due: "Today", done: false },
+  { id: "t4", title: "Refine onboarding checklist", project: "Growth sprint", priority: "medium", due: "Today", done: false },
+];
+
+
 export type Settings = {
   theme: "dark" | "light" | "system";
   accent: "gold" | "teal";
