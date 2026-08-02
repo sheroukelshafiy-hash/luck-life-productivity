@@ -91,7 +91,14 @@ export function LuckLiveProvider({ children }: { children: ReactNode }) {
     root.style.fontSize =
       settings.fontSize === "small" ? "15px" : settings.fontSize === "large" ? "18px" : "16px";
     root.dir = settings.language === "ar" ? "rtl" : "ltr";
-  }, [settings.theme, settings.fontSize, settings.language]);
+    if (settings.accent === "teal") {
+      root.style.setProperty("--primary", "oklch(0.667 0.11 175)");
+      root.style.setProperty("--ring", "oklch(0.667 0.11 175)");
+    } else {
+      root.style.removeProperty("--primary");
+      root.style.removeProperty("--ring");
+    }
+  }, [settings.theme, settings.fontSize, settings.language, settings.accent]);
 
   const value = useMemo<Store>(() => {
     const done = tasks.filter((t) => t.done).length;
