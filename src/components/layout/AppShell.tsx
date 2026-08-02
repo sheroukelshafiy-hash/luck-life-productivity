@@ -33,7 +33,7 @@ const space = [
 
 export const today = "Thursday, Jul 30";
 
-function NavList({ onNavigate }: { onNavigate?: () => void }) {
+function NavList({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { tasks } = useLuckLive();
   const open = tasks.filter((t) => !t.done).length;
@@ -80,7 +80,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
+function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
   return (
     <div className="flex h-full flex-col bg-sidebar">
       <Link to="/" onClick={onNavigate} className="flex items-center gap-3 px-6 py-6">
