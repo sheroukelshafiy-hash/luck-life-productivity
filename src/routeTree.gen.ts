@@ -13,7 +13,6 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as InsightsRouteImport } from './routes/insights'
 import { Route as ProjectsRouteImport } from './routes/projects'
-import { Route as SavedViewsRouteImport } from './routes/saved-views'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as TasksRouteImport } from './routes/tasks'
 
@@ -37,11 +36,6 @@ const ProjectsRoute = ProjectsRouteImport.update({
   path: '/projects',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SavedViewsRoute = SavedViewsRouteImport.update({
-  id: '/saved-views',
-  path: '/saved-views',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -58,7 +52,6 @@ export interface FileRoutesByFullPath {
   '/calendar': typeof CalendarRoute
   '/insights': typeof InsightsRoute
   '/projects': typeof ProjectsRoute
-  '/saved-views': typeof SavedViewsRoute
   '/settings': typeof SettingsRoute
   '/tasks': typeof TasksRoute
 }
@@ -67,7 +60,6 @@ export interface FileRoutesByTo {
   '/calendar': typeof CalendarRoute
   '/insights': typeof InsightsRoute
   '/projects': typeof ProjectsRoute
-  '/saved-views': typeof SavedViewsRoute
   '/settings': typeof SettingsRoute
   '/tasks': typeof TasksRoute
 }
@@ -77,36 +69,21 @@ export interface FileRoutesById {
   '/calendar': typeof CalendarRoute
   '/insights': typeof InsightsRoute
   '/projects': typeof ProjectsRoute
-  '/saved-views': typeof SavedViewsRoute
   '/settings': typeof SettingsRoute
   '/tasks': typeof TasksRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
-    | '/calendar'
-    | '/insights'
-    | '/projects'
-    | '/saved-views'
-    | '/settings'
-    | '/tasks'
+    '/' | '/calendar' | '/insights' | '/projects' | '/settings' | '/tasks'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/calendar'
-    | '/insights'
-    | '/projects'
-    | '/saved-views'
-    | '/settings'
-    | '/tasks'
+  to: '/' | '/calendar' | '/insights' | '/projects' | '/settings' | '/tasks'
   id:
     | '__root__'
     | '/'
     | '/calendar'
     | '/insights'
     | '/projects'
-    | '/saved-views'
     | '/settings'
     | '/tasks'
   fileRoutesById: FileRoutesById
@@ -116,7 +93,6 @@ export interface RootRouteChildren {
   CalendarRoute: typeof CalendarRoute
   InsightsRoute: typeof InsightsRoute
   ProjectsRoute: typeof ProjectsRoute
-  SavedViewsRoute: typeof SavedViewsRoute
   SettingsRoute: typeof SettingsRoute
   TasksRoute: typeof TasksRoute
 }
@@ -151,13 +127,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/saved-views': {
-      id: '/saved-views'
-      path: '/saved-views'
-      fullPath: '/saved-views'
-      preLoaderRoute: typeof SavedViewsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/settings': {
       id: '/settings'
       path: '/settings'
@@ -180,7 +149,6 @@ const rootRouteChildren: RootRouteChildren = {
   CalendarRoute: CalendarRoute,
   InsightsRoute: InsightsRoute,
   ProjectsRoute: ProjectsRoute,
-  SavedViewsRoute: SavedViewsRoute,
   SettingsRoute: SettingsRoute,
   TasksRoute: TasksRoute,
 }
