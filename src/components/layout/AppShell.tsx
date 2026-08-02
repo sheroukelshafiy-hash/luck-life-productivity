@@ -27,9 +27,10 @@ const workspace = [
 
 const space = [
   { to: "/projects", label: "Projects", icon: Folder },
-  { to: "/saved-views", label: "Saved views", icon: Bookmark },
   { to: "/settings", label: "Settings", icon: Settings2 },
+  { to: "/about", label: "About", icon: Info },
 ] as const;
+
 
 export const today = "Thursday, Jul 30";
 
