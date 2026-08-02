@@ -18,8 +18,16 @@ export type Task = {
   done: boolean;
 };
 
+const defaultTasks: Task[] = [
+  { id: "t1", title: "Draft the weekly product update", project: "Personal", priority: "high", due: "Today", done: false },
+  { id: "t2", title: "Finalize Q3 launch brief", project: "Product launch", priority: "high", due: "Today", done: false },
+  { id: "t3", title: "Reply to design review notes", project: "Team ops", priority: "medium", due: "Today", done: false },
+  { id: "t4", title: "Refine onboarding checklist", project: "Growth sprint", priority: "medium", due: "Today", done: false },
+];
+
+
 export type Settings = {
-  theme: "dark" | "light";
+  theme: "dark" | "light" | "system";
   accent: "gold" | "teal";
   fontSize: "small" | "medium" | "large";
   focusDuration: number;
@@ -27,14 +35,30 @@ export type Settings = {
   timerSounds: boolean;
   sessionAlerts: boolean;
   streakReminders: boolean;
+  // General
+  displayName: string;
+  startPage: "/" | "/tasks" | "/calendar" | "/insights";
+  weekStart: "sunday" | "monday";
+  compactMode: boolean;
+  // Notifications
+  taskReminders: boolean;
+  pomodoroNotifications: boolean;
+  dailySummary: boolean;
+  achievementAlerts: boolean;
+  weeklyReview: boolean;
+  // Productivity
+  shortBreak: number;
+  longBreak: number;
+  autoStartBreak: boolean;
+  autoStartNext: boolean;
+  soundVolume: number;
+  focusSound: "none" | "rain" | "cafe" | "waves" | "white-noise";
+  timerAnimation: boolean;
+  // Privacy
+  analyticsOptIn: boolean;
+  crashReports: boolean;
+  showProfilePublicly: boolean;
 };
-
-const defaultTasks: Task[] = [
-  { id: "t1", title: "Draft the weekly product update", project: "Personal", priority: "high", due: "Today", done: false },
-  { id: "t2", title: "Finalize Q3 launch brief", project: "Product launch", priority: "high", due: "Today", done: false },
-  { id: "t3", title: "Reply to design review notes", project: "Team ops", priority: "medium", due: "Today", done: false },
-  { id: "t4", title: "Refine onboarding checklist", project: "Growth sprint", priority: "medium", due: "Today", done: false },
-];
 
 const defaultSettings: Settings = {
   theme: "dark",
@@ -45,7 +69,27 @@ const defaultSettings: Settings = {
   timerSounds: true,
   sessionAlerts: true,
   streakReminders: false,
+  displayName: "Luck Live user",
+  startPage: "/",
+  weekStart: "monday",
+  compactMode: false,
+  taskReminders: true,
+  pomodoroNotifications: true,
+  dailySummary: true,
+  achievementAlerts: true,
+  weeklyReview: false,
+  shortBreak: 5,
+  longBreak: 15,
+  autoStartBreak: true,
+  autoStartNext: false,
+  soundVolume: 60,
+  focusSound: "none",
+  timerAnimation: true,
+  analyticsOptIn: true,
+  crashReports: true,
+  showProfilePublicly: false,
 };
+
 
 type Store = {
   tasks: Task[];
@@ -87,10 +131,17 @@ export function LuckLiveProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.toggle("dark", settings.theme === "dark");
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const apply = () => {
+      const dark = settings.theme === "system" ? mq.matches : settings.theme === "dark";
+      root.classList.toggle("dark", dark);
+    };
+    apply();
+    mq.addEventListener("change", apply);
     root.style.fontSize =
       settings.fontSize === "small" ? "15px" : settings.fontSize === "large" ? "18px" : "16px";
     root.dir = settings.language === "ar" ? "rtl" : "ltr";
+    root.lang = settings.language;
     if (settings.accent === "teal") {
       root.style.setProperty("--primary", "oklch(0.667 0.11 175)");
       root.style.setProperty("--ring", "oklch(0.667 0.11 175)");
@@ -98,7 +149,9 @@ export function LuckLiveProvider({ children }: { children: ReactNode }) {
       root.style.removeProperty("--primary");
       root.style.removeProperty("--ring");
     }
+    return () => mq.removeEventListener("change", apply);
   }, [settings.theme, settings.fontSize, settings.language, settings.accent]);
+
 
   const value = useMemo<Store>(() => {
     const done = tasks.filter((t) => t.done).length;
