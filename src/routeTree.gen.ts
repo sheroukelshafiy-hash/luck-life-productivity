@@ -10,33 +10,115 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CalendarRouteImport } from './routes/calendar'
+import { Route as InsightsRouteImport } from './routes/insights'
+import { Route as ProjectsRouteImport } from './routes/projects'
+import { Route as SavedViewsRouteImport } from './routes/saved-views'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as TasksRouteImport } from './routes/tasks'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CalendarRoute = CalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InsightsRoute = InsightsRouteImport.update({
+  id: '/insights',
+  path: '/insights',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectsRoute = ProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SavedViewsRoute = SavedViewsRouteImport.update({
+  id: '/saved-views',
+  path: '/saved-views',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TasksRoute = TasksRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/calendar': typeof CalendarRoute
+  '/insights': typeof InsightsRoute
+  '/projects': typeof ProjectsRoute
+  '/saved-views': typeof SavedViewsRoute
+  '/settings': typeof SettingsRoute
+  '/tasks': typeof TasksRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/calendar': typeof CalendarRoute
+  '/insights': typeof InsightsRoute
+  '/projects': typeof ProjectsRoute
+  '/saved-views': typeof SavedViewsRoute
+  '/settings': typeof SettingsRoute
+  '/tasks': typeof TasksRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/calendar': typeof CalendarRoute
+  '/insights': typeof InsightsRoute
+  '/projects': typeof ProjectsRoute
+  '/saved-views': typeof SavedViewsRoute
+  '/settings': typeof SettingsRoute
+  '/tasks': typeof TasksRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/calendar'
+    | '/insights'
+    | '/projects'
+    | '/saved-views'
+    | '/settings'
+    | '/tasks'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/calendar'
+    | '/insights'
+    | '/projects'
+    | '/saved-views'
+    | '/settings'
+    | '/tasks'
+  id:
+    | '__root__'
+    | '/'
+    | '/calendar'
+    | '/insights'
+    | '/projects'
+    | '/saved-views'
+    | '/settings'
+    | '/tasks'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CalendarRoute: typeof CalendarRoute
+  InsightsRoute: typeof InsightsRoute
+  ProjectsRoute: typeof ProjectsRoute
+  SavedViewsRoute: typeof SavedViewsRoute
+  SettingsRoute: typeof SettingsRoute
+  TasksRoute: typeof TasksRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +130,59 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/calendar': {
+      id: '/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof CalendarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/insights': {
+      id: '/insights'
+      path: '/insights'
+      fullPath: '/insights'
+      preLoaderRoute: typeof InsightsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projects': {
+      id: '/projects'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof ProjectsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/saved-views': {
+      id: '/saved-views'
+      path: '/saved-views'
+      fullPath: '/saved-views'
+      preLoaderRoute: typeof SavedViewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tasks': {
+      id: '/tasks'
+      path: '/tasks'
+      fullPath: '/tasks'
+      preLoaderRoute: typeof TasksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CalendarRoute: CalendarRoute,
+  InsightsRoute: InsightsRoute,
+  ProjectsRoute: ProjectsRoute,
+  SavedViewsRoute: SavedViewsRoute,
+  SettingsRoute: SettingsRoute,
+  TasksRoute: TasksRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

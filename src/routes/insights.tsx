@@ -1,0 +1,51 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { AppShell } from "@/components/layout/AppShell";
+import { CompletionChart } from "@/components/luck/widgets";
+import { useLuckLive } from "@/lib/luck-live-store";
+
+export const Route = createFileRoute("/insights")({
+  head: () => ({
+    meta: [
+      { title: "Insights — Luck Live momentum analytics" },
+      { name: "description", content: "Weekly completion rate, focus hours and streak analytics for your workspace." },
+      { property: "og:title", content: "Insights — Luck Live momentum analytics" },
+      { property: "og:description", content: "Weekly completion rate, focus hours and streak analytics." },
+    ],
+  }),
+  component: InsightsPage,
+});
+
+function InsightsPage() {
+  const { completion } = useLuckLive();
+  const stats = [
+    { label: "Completion rate", value: `${completion}%`, note: "Today" },
+    { label: "Focus hours", value: "12.5", note: "This week" },
+    { label: "Current streak", value: "5 days", note: "Keep it alive" },
+    { label: "Tasks finished", value: "38", note: "Last 30 days" },
+  ];
+
+  return (
+    <AppShell
+      breadcrumb="Insights"
+      eyebrow="Workspace / Insights"
+      title="Momentum, measured."
+      subtitle="A calm read on how your week is actually going."
+    >
+      <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+        {stats.map((s) => (
+          <section key={s.label} className="card-surface p-6">
+            <p className="eyebrow">{s.label}</p>
+            <p className="mt-3 text-4xl font-bold text-primary">{s.value}</p>
+            <p className="mt-1 text-muted-foreground">{s.note}</p>
+          </section>
+        ))}
+      </div>
+
+      <section className="card-surface mt-6 p-7">
+        <p className="eyebrow">Momentum</p>
+        <h2 className="mt-2 mb-6 text-2xl font-bold">Completion rate</h2>
+        <CompletionChart />
+      </section>
+    </AppShell>
+  );
+}
