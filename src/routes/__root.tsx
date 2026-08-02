@@ -10,8 +10,6 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import testCss from "../test-x.css?url";
-console.log("TESTCSS",testCss);
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { LuckLiveProvider } from "../lib/luck-live-store";
 
