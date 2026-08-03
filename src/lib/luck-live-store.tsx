@@ -147,6 +147,7 @@ const KEY = "luck-live-state-v1";
 export function LuckLiveProvider({ children }: { children: ReactNode }) {
   const [tasks, setTasks] = useState<Task[]>(defaultTasks);
   const [settings, setSettings] = useState<Settings>(defaultSettings);
+  const [taskDialog, setTaskDialog] = useState<TaskDialogState>({ open: false });
 
   useEffect(() => {
     try {
