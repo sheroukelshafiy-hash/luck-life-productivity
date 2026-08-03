@@ -32,9 +32,9 @@ export function ProgressRing({ value, size = 176 }: { value: number; size?: numb
 }
 
 export function TaskRow({ task }: { task: Task }) {
-  const { toggleTask } = useLuckLive();
+  const { toggleTask, openTaskDialog } = useLuckLive();
   return (
-    <div className="flex items-start gap-4 border-b border-border py-5 last:border-0">
+    <div className="flex items-start gap-4 border-b border-border py-5 transition-colors last:border-0 hover:bg-muted/30">
       <button
         aria-label={task.done ? "Mark as not done" : "Mark as done"}
         onClick={() => toggleTask(task.id)}
@@ -43,7 +43,11 @@ export function TaskRow({ task }: { task: Task }) {
           task.done ? "border-primary bg-primary" : "border-border hover:border-primary",
         )}
       />
-      <div className="min-w-0 flex-1">
+      <button
+        type="button"
+        onClick={() => openTaskDialog({ taskId: task.id })}
+        className="min-w-0 flex-1 text-start"
+      >
         <p className={cn("font-semibold", task.done && "text-muted-foreground line-through")}>
           {task.title}
         </p>
@@ -62,8 +66,9 @@ export function TaskRow({ task }: { task: Task }) {
           </span>
           <span className="text-base text-muted-foreground">{task.project}</span>
         </div>
-      </div>
+      </button>
       <span className="shrink-0 text-base text-muted-foreground">{task.due}</span>
+      <TaskMenu task={task} />
     </div>
   );
 }
