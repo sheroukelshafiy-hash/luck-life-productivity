@@ -287,8 +287,10 @@ export function FocusSession() {
 
 
       <p className="mt-8 text-6xl font-extrabold tabular-nums sm:text-7xl">
+        {hh > 0 ? `${String(hh).padStart(2, "0")}:` : ""}
         {mm}:{ss}
       </p>
+
 
       <div className="mt-6 flex items-center gap-5">
         <button
