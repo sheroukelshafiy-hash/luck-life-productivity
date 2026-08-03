@@ -158,6 +158,8 @@ export function LuckLiveProvider({ children }: { children: ReactNode }) {
         if (parsed.tasks)
           setTasks(parsed.tasks.map((t) => ({ ...t, date: t.date ?? todayISO() })));
         if (parsed.settings) setSettings({ ...defaultSettings, ...parsed.settings });
+      } else {
+        setTasks((prev) => prev.map((t) => ({ ...t, date: t.date ?? todayISO() })));
       }
     } catch {
       /* ignore corrupted state */
