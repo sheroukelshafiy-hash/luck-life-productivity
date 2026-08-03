@@ -142,13 +142,18 @@ export function CompletionChart() {
 
 export function FocusSession() {
   const { settings } = useLuckLive();
-  const [minutes, setMinutes] = useState(settings.focusDuration);
+  const [total, setTotal] = useState(settings.focusDuration * 60);
   const [seconds, setSeconds] = useState(settings.focusDuration * 60);
   const [running, setRunning] = useState(false);
+  const [customOpen, setCustomOpen] = useState(false);
+  const [ch, setCh] = useState("0");
+  const [cm, setCm] = useState("25");
+  const [cs, setCs] = useState("0");
+  const [customError, setCustomError] = useState("");
   const ref = useRef<number | null>(null);
 
   useEffect(() => {
-    setMinutes(settings.focusDuration);
+    setTotal(settings.focusDuration * 60);
     setSeconds(settings.focusDuration * 60);
     setRunning(false);
   }, [settings.focusDuration]);
@@ -163,9 +168,35 @@ export function FocusSession() {
     };
   }, [running]);
 
-  const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
+  const hh = Math.floor(seconds / 3600);
+  const mm = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
   const ss = String(seconds % 60).padStart(2, "0");
   const presets = [15, 25, 30, 45, 60];
+  const minutes = total / 60;
+
+  const applyCustom = () => {
+    const h = Number(ch);
+    const m = Number(cm);
+    const s = Number(cs);
+    if ([h, m, s].some((n) => !Number.isFinite(n) || n < 0 || !Number.isInteger(n))) {
+      setCustomError("Use whole, non-negative numbers.");
+      return;
+    }
+    if (m > 59 || s > 59) {
+      setCustomError("Minutes and seconds must be under 60.");
+      return;
+    }
+    const totalSeconds = h * 3600 + m * 60 + s;
+    if (totalSeconds < 1 || totalSeconds > 86400) {
+      setCustomError("Pick a duration between 1 second and 24 hours.");
+      return;
+    }
+    setCustomError("");
+    setTotal(totalSeconds);
+    setSeconds(totalSeconds);
+    setRunning(false);
+    setCustomOpen(false);
+  };
 
   return (
     <section className="flex flex-col rounded-2xl bg-primary p-7 text-primary-foreground shadow-card">
@@ -178,7 +209,7 @@ export function FocusSession() {
           <button
             key={p}
             onClick={() => {
-              setMinutes(p);
+              setTotal(p * 60);
               setSeconds(p * 60);
               setRunning(false);
             }}
@@ -190,7 +221,70 @@ export function FocusSession() {
             {p}m
           </button>
         ))}
+        <button
+          onClick={() => setCustomOpen(true)}
+          className={cn(
+            "rounded-xl border border-primary-foreground/25 px-4 py-2 font-medium transition-colors",
+            !presets.includes(minutes) && "bg-primary-foreground/15",
+          )}
+        >
+          Custom
+        </button>
       </div>
+
+      <Dialog open={customOpen} onOpenChange={setCustomOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Custom duration</DialogTitle>
+            <DialogDescription>Set your own focus length.</DialogDescription>
+          </DialogHeader>
+          <form
+            className="grid grid-cols-3 gap-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              applyCustom();
+            }}
+          >
+            {(
+              [
+                ["Hours", ch, setCh],
+                ["Minutes", cm, setCm],
+                ["Seconds", cs, setCs],
+              ] as const
+            ).map(([label, val, set]) => (
+              <label key={label} className="block">
+                <span className="eyebrow">{label}</span>
+                <input
+                  type="number"
+                  min={0}
+                  value={val}
+                  onChange={(e) => set(e.target.value)}
+                  className="mt-2 w-full rounded-xl border border-border bg-muted/40 px-3 py-2 text-base outline-none focus:border-primary"
+                />
+              </label>
+            ))}
+            <button type="submit" className="hidden" />
+          </form>
+          {customError ? <p className="text-sm font-medium text-destructive">{customError}</p> : null}
+          <DialogFooter>
+            <button
+              type="button"
+              onClick={() => setCustomOpen(false)}
+              className="rounded-xl border border-border px-5 py-3 font-semibold transition-colors hover:bg-muted"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={applyCustom}
+              className="rounded-xl bg-primary px-5 py-3 font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+            >
+              Use duration
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
 
       <p className="mt-8 text-6xl font-extrabold tabular-nums sm:text-7xl">
         {mm}:{ss}
