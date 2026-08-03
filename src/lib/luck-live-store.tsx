@@ -154,7 +154,8 @@ export function LuckLiveProvider({ children }: { children: ReactNode }) {
       const raw = window.localStorage.getItem(KEY);
       if (raw) {
         const parsed = JSON.parse(raw) as { tasks?: Task[]; settings?: Settings };
-        if (parsed.tasks) setTasks(parsed.tasks);
+        if (parsed.tasks)
+          setTasks(parsed.tasks.map((t) => ({ ...t, date: t.date ?? todayISO() })));
         if (parsed.settings) setSettings({ ...defaultSettings, ...parsed.settings });
       }
     } catch {
