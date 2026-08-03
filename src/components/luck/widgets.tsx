@@ -303,7 +303,8 @@ export function FocusSession() {
         <button
           aria-label="Reset session"
           onClick={() => {
-            setSeconds(minutes * 60);
+            setSeconds(total);
+
             setRunning(false);
           }}
         >
