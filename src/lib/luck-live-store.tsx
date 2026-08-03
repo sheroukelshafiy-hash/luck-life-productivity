@@ -195,18 +195,38 @@ export function LuckLiveProvider({ children }: { children: ReactNode }) {
 
 
   const value = useMemo<Store>(() => {
-    const done = tasks.filter((t) => t.done).length;
+    const visible = tasks.filter((t) => !t.archived);
+    const done = visible.filter((t) => t.done).length;
     return {
-      tasks,
+      tasks: visible,
+      allTasks: tasks,
       settings,
-      completion: tasks.length ? Math.round((done / tasks.length) * 100) : 0,
+      completion: visible.length ? Math.round((done / visible.length) * 100) : 0,
       toggleTask: (id) =>
         setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t))),
       addTask: (task) =>
-        setTasks((prev) => [...prev, { ...task, id: crypto.randomUUID(), done: false }]),
+        setTasks((prev) => [
+          ...prev,
+          { done: false, ...task, id: crypto.randomUUID() },
+        ]),
+      updateTask: (id, patch) =>
+        setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t))),
+      deleteTask: (id) => setTasks((prev) => prev.filter((t) => t.id !== id)),
+      duplicateTask: (id) =>
+        setTasks((prev) => {
+          const src = prev.find((t) => t.id === id);
+          if (!src) return prev;
+          return [...prev, { ...src, id: crypto.randomUUID(), title: `${src.title} (copy)`, done: false }];
+        }),
+      archiveTask: (id, archived = true) =>
+        setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, archived } : t))),
       updateSettings: (patch) => setSettings((prev) => ({ ...prev, ...patch })),
+      taskDialog,
+      openTaskDialog: (opts) =>
+        setTaskDialog({ open: true, taskId: opts?.taskId ?? null, date: opts?.date ?? null }),
+      closeTaskDialog: () => setTaskDialog({ open: false }),
     };
-  }, [tasks, settings]);
+  }, [tasks, settings, taskDialog]);
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }
