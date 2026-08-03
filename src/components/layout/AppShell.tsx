@@ -16,6 +16,7 @@ import {
   Sunrise,
 } from "lucide-react";
 import { useLuckLive } from "@/lib/luck-live-store";
+import { TaskDialog } from "@/components/luck/TaskDialog";
 import { cn } from "@/lib/utils";
 
 const workspace = [
@@ -118,6 +119,7 @@ export function AppShell({
   children: ReactNode;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { openTaskDialog } = useLuckLive();
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -168,7 +170,9 @@ export function AppShell({
             >
               <Bell className="size-5" />
             </button>
-            <button className="flex items-center gap-2 rounded-2xl bg-primary px-4 py-3 font-semibold text-primary-foreground transition-opacity hover:opacity-90">
+            <button
+              onClick={() => openTaskDialog()}
+              className="flex items-center gap-2 rounded-2xl bg-primary px-4 py-3 font-semibold text-primary-foreground transition-opacity hover:opacity-90">
               <Plus className="size-5" />
               <span className="hidden sm:inline">Add task</span>
             </button>
@@ -185,6 +189,7 @@ export function AppShell({
             <span className="text-base text-muted-foreground">{today}</span>
           </div>
           <div className="mt-8">{children}</div>
+          <TaskDialog />
         </main>
       </div>
     </div>
