@@ -117,13 +117,27 @@ const defaultSettings: Settings = {
 };
 
 
+export type TaskDialogState = {
+  open: boolean;
+  taskId?: string | null;
+  date?: string | null;
+};
+
 type Store = {
   tasks: Task[];
+  allTasks: Task[];
   settings: Settings;
   toggleTask: (id: string) => void;
-  addTask: (task: Omit<Task, "id" | "done">) => void;
+  addTask: (task: Omit<Task, "id" | "done"> & { done?: boolean }) => void;
+  updateTask: (id: string, patch: Partial<Task>) => void;
+  deleteTask: (id: string) => void;
+  duplicateTask: (id: string) => void;
+  archiveTask: (id: string, archived?: boolean) => void;
   updateSettings: (patch: Partial<Settings>) => void;
   completion: number;
+  taskDialog: TaskDialogState;
+  openTaskDialog: (opts?: { taskId?: string; date?: string }) => void;
+  closeTaskDialog: () => void;
 };
 
 const StoreContext = createContext<Store | null>(null);
