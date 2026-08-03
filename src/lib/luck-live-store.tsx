@@ -16,7 +16,33 @@ export type Task = {
   priority: Priority;
   due: string;
   done: boolean;
+  /** ISO yyyy-mm-dd date the task is scheduled for */
+  date?: string;
+  description?: string;
+  reminder?: string;
+  estimate?: number;
+  notes?: string;
+  tags?: string[];
+  archived?: boolean;
 };
+
+export function toISODate(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+export function todayISO() {
+  return toISODate(new Date());
+}
+
+export function dueLabel(iso: string) {
+  const today = todayISO();
+  if (iso === today) return "Today";
+  const t = new Date();
+  t.setDate(t.getDate() + 1);
+  if (iso === toISODate(t)) return "Tomorrow";
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y!, (m ?? 1) - 1, d ?? 1).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
 
 const defaultTasks: Task[] = [
   { id: "t1", title: "Draft the weekly product update", project: "Personal", priority: "high", due: "Today", done: false },
