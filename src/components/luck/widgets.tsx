@@ -1,6 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { Play, Pause, RotateCcw, SkipForward } from "lucide-react";
 import { useLuckLive, type Task } from "@/lib/luck-live-store";
+import { TaskMenu } from "@/components/luck/TaskMenu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
 export function ProgressRing({ value, size = 176 }: { value: number; size?: number }) {
