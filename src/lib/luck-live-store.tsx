@@ -16,7 +16,33 @@ export type Task = {
   priority: Priority;
   due: string;
   done: boolean;
+  /** ISO yyyy-mm-dd date the task is scheduled for */
+  date?: string;
+  description?: string;
+  reminder?: string;
+  estimate?: number;
+  notes?: string;
+  tags?: string[];
+  archived?: boolean;
 };
+
+export function toISODate(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+export function todayISO() {
+  return toISODate(new Date());
+}
+
+export function dueLabel(iso: string) {
+  const today = todayISO();
+  if (iso === today) return "Today";
+  const t = new Date();
+  t.setDate(t.getDate() + 1);
+  if (iso === toISODate(t)) return "Tomorrow";
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y!, (m ?? 1) - 1, d ?? 1).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
 
 const defaultTasks: Task[] = [
   { id: "t1", title: "Draft the weekly product update", project: "Personal", priority: "high", due: "Today", done: false },
@@ -91,13 +117,27 @@ const defaultSettings: Settings = {
 };
 
 
+export type TaskDialogState = {
+  open: boolean;
+  taskId?: string | null;
+  date?: string | null;
+};
+
 type Store = {
   tasks: Task[];
+  allTasks: Task[];
   settings: Settings;
   toggleTask: (id: string) => void;
-  addTask: (task: Omit<Task, "id" | "done">) => void;
+  addTask: (task: Omit<Task, "id" | "done"> & { done?: boolean }) => void;
+  updateTask: (id: string, patch: Partial<Task>) => void;
+  deleteTask: (id: string) => void;
+  duplicateTask: (id: string) => void;
+  archiveTask: (id: string, archived?: boolean) => void;
   updateSettings: (patch: Partial<Settings>) => void;
   completion: number;
+  taskDialog: TaskDialogState;
+  openTaskDialog: (opts?: { taskId?: string; date?: string }) => void;
+  closeTaskDialog: () => void;
 };
 
 const StoreContext = createContext<Store | null>(null);
@@ -106,15 +146,20 @@ const KEY = "luck-live-state-v1";
 
 export function LuckLiveProvider({ children }: { children: ReactNode }) {
   const [tasks, setTasks] = useState<Task[]>(defaultTasks);
+
   const [settings, setSettings] = useState<Settings>(defaultSettings);
+  const [taskDialog, setTaskDialog] = useState<TaskDialogState>({ open: false });
 
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(KEY);
       if (raw) {
         const parsed = JSON.parse(raw) as { tasks?: Task[]; settings?: Settings };
-        if (parsed.tasks) setTasks(parsed.tasks);
+        if (parsed.tasks)
+          setTasks(parsed.tasks.map((t) => ({ ...t, date: t.date ?? todayISO() })));
         if (parsed.settings) setSettings({ ...defaultSettings, ...parsed.settings });
+      } else {
+        setTasks((prev) => prev.map((t) => ({ ...t, date: t.date ?? todayISO() })));
       }
     } catch {
       /* ignore corrupted state */
@@ -154,18 +199,38 @@ export function LuckLiveProvider({ children }: { children: ReactNode }) {
 
 
   const value = useMemo<Store>(() => {
-    const done = tasks.filter((t) => t.done).length;
+    const visible = tasks.filter((t) => !t.archived);
+    const done = visible.filter((t) => t.done).length;
     return {
-      tasks,
+      tasks: visible,
+      allTasks: tasks,
       settings,
-      completion: tasks.length ? Math.round((done / tasks.length) * 100) : 0,
+      completion: visible.length ? Math.round((done / visible.length) * 100) : 0,
       toggleTask: (id) =>
         setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t))),
       addTask: (task) =>
-        setTasks((prev) => [...prev, { ...task, id: crypto.randomUUID(), done: false }]),
+        setTasks((prev) => [
+          ...prev,
+          { done: false, ...task, id: crypto.randomUUID() },
+        ]),
+      updateTask: (id, patch) =>
+        setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t))),
+      deleteTask: (id) => setTasks((prev) => prev.filter((t) => t.id !== id)),
+      duplicateTask: (id) =>
+        setTasks((prev) => {
+          const src = prev.find((t) => t.id === id);
+          if (!src) return prev;
+          return [...prev, { ...src, id: crypto.randomUUID(), title: `${src.title} (copy)`, done: false }];
+        }),
+      archiveTask: (id, archived = true) =>
+        setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, archived } : t))),
       updateSettings: (patch) => setSettings((prev) => ({ ...prev, ...patch })),
+      taskDialog,
+      openTaskDialog: (opts) =>
+        setTaskDialog({ open: true, taskId: opts?.taskId ?? null, date: opts?.date ?? null }),
+      closeTaskDialog: () => setTaskDialog({ open: false }),
     };
-  }, [tasks, settings]);
+  }, [tasks, settings, taskDialog]);
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }
