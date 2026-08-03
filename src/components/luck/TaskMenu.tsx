@@ -76,7 +76,7 @@ export function TaskMenu({ task }: { task: Task }) {
         <DropdownMenuItem onClick={() => archiveTask(task.id, !task.archived)}>
           {task.archived ? "Unarchive" : "Archive"}
         </DropdownMenuItem>
-        <DropdownMenuItem variant="destructive" onClick={() => deleteTask(task.id)}>
+        <DropdownMenuItem className="text-destructive" onClick={() => deleteTask(task.id)}>
           Delete
         </DropdownMenuItem>
       </DropdownMenuContent>
