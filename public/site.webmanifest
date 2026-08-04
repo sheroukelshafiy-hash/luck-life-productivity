@@ -1,0 +1,10 @@
+{
+  "name": "Luck Life",
+  "short_name": "Luck Life",
+  "description": "Luck Life is an intelligent productivity platform for tasks, deep focus, habits and long-term progress.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#12211f",
+  "theme_color": "#12211f",
+  "icons": [{ "src": "/favicon.ico", "sizes": "48x48", "type": "image/x-icon" }]
+}
