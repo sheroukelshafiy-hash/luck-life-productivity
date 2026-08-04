@@ -291,7 +291,7 @@ function FlipGroup({ value }: { value: string }) {
 
 export function FlipClock({ hh, mm, ss }: { hh: string; mm: string; ss: string }) {
   return (
-    <div dir="ltr" className="mt-8 flex flex-wrap items-center gap-2 self-start text-5xl font-extrabold tabular-nums sm:text-6xl">
+    <div dir="ltr" className="mt-8 flex items-center gap-2 self-start text-5xl font-extrabold tabular-nums sm:text-6xl">
       <FlipGroup value={hh} />
       <span className="pb-1 opacity-70">:</span>
       <FlipGroup value={mm} />
