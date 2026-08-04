@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useLuckLive, dueLabel, toISODate, type Task, type Priority } from "@/lib/luck-live-store";
+import { useT } from "@/lib/i18n";
 
 const priorities: Priority[] = ["high", "medium", "low"];
 const categories = ["Personal", "Product launch", "Team ops", "Growth sprint"];
@@ -17,6 +18,7 @@ const categories = ["Personal", "Product launch", "Team ops", "Growth sprint"];
 export function TaskMenu({ task }: { task: Task }) {
   const { toggleTask, deleteTask, duplicateTask, archiveTask, updateTask, openTaskDialog } =
     useLuckLive();
+  const t = useT();
 
   const shift = (days: number) => {
     const base = task.date ? new Date(`${task.date}T00:00:00`) : new Date();
@@ -28,31 +30,31 @@ export function TaskMenu({ task }: { task: Task }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        aria-label={`Actions for ${task.title}`}
+        aria-label={`${t("Task actions")}: ${task.title}`}
         className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         onClick={(e) => e.stopPropagation()}
       >
         <MoreHorizontal className="size-5" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-52">
-        <DropdownMenuItem onClick={() => openTaskDialog({ taskId: task.id })}>Edit</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => openTaskDialog({ taskId: task.id })}>{t("Edit")}</DropdownMenuItem>
         <DropdownMenuItem onClick={() => toggleTask(task.id)}>
-          {task.done ? "Mark incomplete" : "Mark complete"}
+          {task.done ? t("Mark incomplete") : t("Mark complete")}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => duplicateTask(task.id)}>Duplicate</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => duplicateTask(task.id)}>{t("Duplicate")}</DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuSub>
-          <DropdownMenuSubTrigger>Priority</DropdownMenuSubTrigger>
+          <DropdownMenuSubTrigger>{t("Priority")}</DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
             {priorities.map((p) => (
               <DropdownMenuItem key={p} onClick={() => updateTask(task.id, { priority: p })}>
-                <span className="capitalize">{p}</span>
+                <span className="capitalize">{t(p)}</span>
               </DropdownMenuItem>
             ))}
           </DropdownMenuSubContent>
         </DropdownMenuSub>
         <DropdownMenuSub>
-          <DropdownMenuSubTrigger>Category</DropdownMenuSubTrigger>
+          <DropdownMenuSubTrigger>{t("Category")}</DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
             {categories.map((c) => (
               <DropdownMenuItem key={c} onClick={() => updateTask(task.id, { project: c })}>
@@ -62,22 +64,22 @@ export function TaskMenu({ task }: { task: Task }) {
           </DropdownMenuSubContent>
         </DropdownMenuSub>
         <DropdownMenuSub>
-          <DropdownMenuSubTrigger>Due date</DropdownMenuSubTrigger>
+          <DropdownMenuSubTrigger>{t("Due date")}</DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
-            <DropdownMenuItem onClick={() => shift(0)}>Keep, refresh label</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => shift(1)}>Push 1 day</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => shift(7)}>Push 1 week</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => shift(0)}>{t("Keep, refresh label")}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => shift(1)}>{t("Push 1 day")}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => shift(7)}>{t("Push 1 week")}</DropdownMenuItem>
             <DropdownMenuItem onClick={() => openTaskDialog({ taskId: task.id })}>
-              Pick a date…
+              {t("Pick a date…")}
             </DropdownMenuItem>
           </DropdownMenuSubContent>
         </DropdownMenuSub>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => archiveTask(task.id, !task.archived)}>
-          {task.archived ? "Unarchive" : "Archive"}
+          {task.archived ? t("Unarchive") : t("Archive")}
         </DropdownMenuItem>
         <DropdownMenuItem className="text-destructive" onClick={() => deleteTask(task.id)}>
-          Delete
+          {t("Delete")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

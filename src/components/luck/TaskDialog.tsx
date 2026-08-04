@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useLuckLive, dueLabel, todayISO, type Priority } from "@/lib/luck-live-store";
+import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 const priorities: Priority[] = ["high", "medium", "low"];
@@ -17,6 +18,7 @@ const field =
 
 export function TaskDialog() {
   const { taskDialog, closeTaskDialog, allTasks, addTask, updateTask } = useLuckLive();
+  const t = useT();
   const editing = taskDialog.taskId ? allTasks.find((t) => t.id === taskDialog.taskId) : undefined;
 
   const [title, setTitle] = useState("");
@@ -46,7 +48,7 @@ export function TaskDialog() {
 
   const submit = () => {
     if (!title.trim()) {
-      setError("Give the task a title.");
+      setError(t("Give the task a title."));
       return;
     }
     const payload = {
@@ -73,9 +75,9 @@ export function TaskDialog() {
     <Dialog open={taskDialog.open} onOpenChange={(o) => (o ? null : closeTaskDialog())}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>{editing ? "Task details" : "Add task"}</DialogTitle>
+          <DialogTitle>{editing ? t("Task details") : t("Add task")}</DialogTitle>
           <DialogDescription>
-            {editing ? "Update this task and save your changes." : "Create a new task for your workspace."}
+            {editing ? t("Update this task and save your changes.") : t("Create a new task for your workspace.")}
           </DialogDescription>
         </DialogHeader>
 
@@ -87,19 +89,19 @@ export function TaskDialog() {
           }}
         >
           <div>
-            <label className="eyebrow" htmlFor="task-title">Title</label>
+            <label className="eyebrow" htmlFor="task-title">{t("Title")}</label>
             <input
               id="task-title"
               autoFocus
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="What needs doing?"
+              placeholder={t("What needs doing?")}
               className={cn(field, "mt-2")}
             />
           </div>
 
           <div>
-            <label className="eyebrow" htmlFor="task-desc">Description</label>
+            <label className="eyebrow" htmlFor="task-desc">{t("Description")}</label>
             <textarea
               id="task-desc"
               rows={2}
@@ -111,7 +113,7 @@ export function TaskDialog() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="eyebrow" htmlFor="task-project">Category</label>
+              <label className="eyebrow" htmlFor="task-project">{t("Category")}</label>
               <input
                 id="task-project"
                 value={project}
@@ -120,7 +122,7 @@ export function TaskDialog() {
               />
             </div>
             <div>
-              <span className="eyebrow">Priority</span>
+              <span className="eyebrow">{t("Priority")}</span>
               <div className="mt-2 flex rounded-xl bg-muted p-1">
                 {priorities.map((p) => (
                   <button
@@ -132,13 +134,13 @@ export function TaskDialog() {
                       priority === p ? "bg-card text-foreground" : "text-muted-foreground",
                     )}
                   >
-                    {p}
+                    {t(p)}
                   </button>
                 ))}
               </div>
             </div>
             <div>
-              <label className="eyebrow" htmlFor="task-date">Due date</label>
+              <label className="eyebrow" htmlFor="task-date">{t("Due date")}</label>
               <input
                 id="task-date"
                 type="date"
@@ -148,7 +150,7 @@ export function TaskDialog() {
               />
             </div>
             <div>
-              <label className="eyebrow" htmlFor="task-reminder">Reminder</label>
+              <label className="eyebrow" htmlFor="task-reminder">{t("Reminder")}</label>
               <input
                 id="task-reminder"
                 type="time"
@@ -158,7 +160,7 @@ export function TaskDialog() {
               />
             </div>
             <div>
-              <label className="eyebrow" htmlFor="task-estimate">Estimated time (min)</label>
+              <label className="eyebrow" htmlFor="task-estimate">{t("Estimated time (min)")}</label>
               <input
                 id="task-estimate"
                 type="number"
@@ -169,19 +171,19 @@ export function TaskDialog() {
               />
             </div>
             <div>
-              <label className="eyebrow" htmlFor="task-tags">Tags</label>
+              <label className="eyebrow" htmlFor="task-tags">{t("Tags")}</label>
               <input
                 id="task-tags"
                 value={tags}
                 onChange={(e) => setTags(e.target.value)}
-                placeholder="deep work, review"
+                placeholder={t("deep work, review")}
                 className={cn(field, "mt-2")}
               />
             </div>
           </div>
 
           <div>
-            <label className="eyebrow" htmlFor="task-notes">Notes</label>
+            <label className="eyebrow" htmlFor="task-notes">{t("Notes")}</label>
             <textarea
               id="task-notes"
               rows={3}
@@ -197,15 +199,15 @@ export function TaskDialog() {
             <button
               type="button"
               onClick={closeTaskDialog}
-              className="rounded-xl border border-border px-5 py-3 font-semibold transition-colors hover:bg-muted"
+              className="press rounded-xl border border-border px-5 py-3 font-semibold transition-colors hover:bg-muted"
             >
-              Cancel
+              {t("Cancel")}
             </button>
             <button
               type="submit"
-              className="rounded-xl bg-primary px-5 py-3 font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+              className="press rounded-xl bg-primary px-5 py-3 font-semibold text-primary-foreground transition-opacity hover:opacity-90"
             >
-              {editing ? "Save changes" : "Create task"}
+              {editing ? t("Save changes") : t("Create task")}
             </button>
           </DialogFooter>
         </form>
