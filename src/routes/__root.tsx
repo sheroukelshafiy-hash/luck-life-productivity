@@ -79,16 +79,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Luck Live — Daily productivity cockpit" },
+      { title: "Luck Life — Daily productivity cockpit" },
       {
         name: "description",
         content:
-          "Luck Live is a calm productivity workspace for daily tasks, focus sessions, streaks and momentum insights.",
+          "Luck Life is a calm productivity workspace for daily tasks, focus sessions, streaks and momentum insights.",
       },
-      { property: "og:title", content: "Luck Live — Daily productivity cockpit" },
+      { property: "og:title", content: "Luck Life — Daily productivity cockpit" },
       {
         property: "og:description",
-        content: "Track tasks, run focus sessions and keep your streak alive with Luck Live.",
+        content: "Track tasks, run focus sessions and keep your streak alive with Luck Life.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -5,9 +5,9 @@ import { useLuckLive } from "@/lib/luck-live-store";
 export const Route = createFileRoute("/projects")({
   head: () => ({
     meta: [
-      { title: "Projects — Luck Live" },
+      { title: "Projects — Luck Life" },
       { name: "description", content: "Group your work into projects and see progress per initiative." },
-      { property: "og:title", content: "Projects — Luck Live" },
+      { property: "og:title", content: "Projects — Luck Life" },
       { property: "og:description", content: "Group your work into projects and see progress per initiative." },
     ],
   }),

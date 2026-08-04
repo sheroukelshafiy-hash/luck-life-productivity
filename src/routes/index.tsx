@@ -6,12 +6,12 @@ import { useLuckLive } from "@/lib/luck-live-store";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Overview — Luck Live daily cockpit" },
+      { title: "Overview — Luck Life daily cockpit" },
       {
         name: "description",
         content: "See daily progress, streaks, focus sessions and today's tasks in one calm cockpit.",
       },
-      { property: "og:title", content: "Overview — Luck Live daily cockpit" },
+      { property: "og:title", content: "Overview — Luck Life daily cockpit" },
       {
         property: "og:description",
         content: "Daily progress, streaks, focus sessions and today's tasks in one calm cockpit.",

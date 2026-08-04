@@ -6,9 +6,9 @@ import { useLuckLive } from "@/lib/luck-live-store";
 export const Route = createFileRoute("/insights")({
   head: () => ({
     meta: [
-      { title: "Insights — Luck Live momentum analytics" },
+      { title: "Insights — Luck Life momentum analytics" },
       { name: "description", content: "Weekly completion rate, focus hours and streak analytics for your workspace." },
-      { property: "og:title", content: "Insights — Luck Live momentum analytics" },
+      { property: "og:title", content: "Insights — Luck Life momentum analytics" },
       { property: "og:description", content: "Weekly completion rate, focus hours and streak analytics." },
     ],
   }),

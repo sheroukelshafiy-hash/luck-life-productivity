@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Luck Live design system.
+ * Luck Life design system.
  * Dark theme (petroleum teal + warm gold) is the primary visual identity.
  * All colors are semantic tokens in oklch. Never hardcode colors in components.
  */

@@ -9,9 +9,9 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/calendar")({
   head: () => ({
     meta: [
-      { title: "Calendar — Luck Live streak view" },
+      { title: "Calendar — Luck Life streak view" },
       { name: "description", content: "A monthly view of daily finishes so your streak stays visible." },
-      { property: "og:title", content: "Calendar — Luck Live streak view" },
+      { property: "og:title", content: "Calendar — Luck Life streak view" },
       { property: "og:description", content: "A monthly view of daily finishes so your streak stays visible." },
     ],
   }),

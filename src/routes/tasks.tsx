@@ -8,9 +8,9 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/tasks")({
   head: () => ({
     meta: [
-      { title: "My tasks — Luck Live" },
+      { title: "My tasks — Luck Life" },
       { name: "description", content: "Your daily task list with priorities, projects and completion tracking." },
-      { property: "og:title", content: "My tasks — Luck Live" },
+      { property: "og:title", content: "My tasks — Luck Life" },
       { property: "og:description", content: "Your daily task list with priorities, projects and completion tracking." },
     ],
   }),
