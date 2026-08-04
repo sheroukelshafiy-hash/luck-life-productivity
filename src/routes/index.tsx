@@ -2,6 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/layout/AppShell";
 import { CompletionChart, FocusSession, ProgressRing } from "@/components/luck/widgets";
 import { useLuckLive } from "@/lib/luck-live-store";
+import { useT, useLocale } from "@/lib/i18n";
+import { useToday } from "@/lib/use-now";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
