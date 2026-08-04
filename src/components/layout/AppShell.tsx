@@ -139,7 +139,7 @@ export function AppShell({
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen w-full overflow-x-hidden bg-background">
       <aside className="hidden w-72 shrink-0 border-e border-sidebar-border lg:block">
         <div className="sticky top-0 h-screen">
           <SidebarContent />
