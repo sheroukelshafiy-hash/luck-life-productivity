@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/layout/AppShell";
 import { useLuckLive } from "@/lib/luck-live-store";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/projects")({
   head: () => ({
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/projects")({
 
 function ProjectsPage() {
   const { tasks } = useLuckLive();
+  const t = useT();
   const projects = Array.from(new Set(tasks.map((t) => t.project)));
 
   return (
@@ -31,11 +33,11 @@ function ProjectsPage() {
           const done = items.filter((t) => t.done).length;
           const pct = Math.round((done / items.length) * 100);
           return (
-            <section key={p} className="card-surface p-6">
-              <p className="eyebrow">Project</p>
+            <section key={p} className="card-surface lift animate-fade-in p-6">
+              <p className="eyebrow">{t("Project")}</p>
               <h2 className="mt-2 text-xl font-bold">{p}</h2>
               <p className="mt-1 text-muted-foreground">
-                {done} of {items.length} tasks complete
+                {done} {t("of")} {items.length} {t("tasks complete")}
               </p>
               <div className="mt-5 h-2 w-full overflow-hidden rounded-full bg-muted">
                 <div className="h-full rounded-full bg-primary" style={{ width: `${pct}%` }} />
