@@ -8,7 +8,6 @@ import {
   Folder,
   Info,
   Settings2,
-  Bell,
   Search,
   Plus,
   Menu,
@@ -17,6 +16,10 @@ import {
 } from "lucide-react";
 import { useLuckLive } from "@/lib/luck-live-store";
 import { TaskDialog } from "@/components/luck/TaskDialog";
+import { NotificationCenter } from "@/components/luck/NotificationCenter";
+import { ThemeToggle } from "@/components/luck/ThemeToggle";
+import { useT, useLocale } from "@/lib/i18n";
+import { useToday } from "@/lib/use-now";
 import { cn } from "@/lib/utils";
 
 const workspace = [
@@ -32,13 +35,18 @@ const space = [
   { to: "/about", label: "About", icon: Info },
 ] as const;
 
-
-export const today = "Thursday, Jul 30";
+/** Live, localized "today" label — never hardcoded. */
+export function useTodayLabel() {
+  const now = useToday();
+  const locale = useLocale();
+  return now.toLocaleDateString(locale, { weekday: "long", month: "short", day: "numeric" });
+}
 
 function NavList({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { tasks } = useLuckLive();
-  const open = tasks.filter((t) => !t.done).length;
+  const t = useT();
+  const open = tasks.filter((x) => !x.done).length;
 
   const item = (
     to: string,
@@ -53,14 +61,19 @@ function NavList({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
         to={to}
         onClick={onNavigate}
         className={cn(
-          "flex items-center gap-3 rounded-xl px-4 py-3 text-base font-medium transition-colors",
+          "group flex items-center gap-3 rounded-xl px-4 py-3 text-base font-medium transition-all duration-200",
           active
             ? "bg-sidebar-accent text-sidebar-accent-foreground"
             : "text-sidebar-foreground hover:bg-sidebar-accent/50",
         )}
       >
-        <Icon className={cn("size-5", active ? "text-primary" : "text-muted-foreground")} />
-        <span className="flex-1">{label}</span>
+        <Icon
+          className={cn(
+            "size-5 transition-transform duration-200 group-hover:scale-110",
+            active ? "text-primary" : "text-muted-foreground",
+          )}
+        />
+        <span className="flex-1">{t(label)}</span>
         {badge && open > 0 ? (
           <span className="text-sm font-semibold text-muted-foreground">{open}</span>
         ) : null}
@@ -71,11 +84,11 @@ function NavList({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
   return (
     <nav className="flex flex-1 flex-col gap-8 overflow-y-auto px-3 py-4">
       <div className="space-y-1">
-        <p className="eyebrow px-4 pb-2">Workspace</p>
+        <p className="eyebrow px-4 pb-2">{t("Workspace")}</p>
         {workspace.map((i) => item(i.to, i.label, i.icon, "badge" in i && i.badge))}
       </div>
       <div className="space-y-1">
-        <p className="eyebrow px-4 pb-2">Your space</p>
+        <p className="eyebrow px-4 pb-2">{t("Your space")}</p>
         {space.map((i) => item(i.to, i.label, i.icon))}
       </div>
     </nav>
@@ -83,13 +96,14 @@ function NavList({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
 }
 
 function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
+  const t = useT();
   return (
     <div className="flex h-full flex-col bg-sidebar">
-      <Link to="/" onClick={onNavigate} className="flex items-center gap-3 px-6 py-6">
-        <span className="flex size-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
+      <Link to="/" onClick={onNavigate} className="group flex items-center gap-3 px-6 py-6">
+        <span className="flex size-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground transition-transform duration-200 group-hover:scale-105">
           <Sparkles className="size-6" />
         </span>
-        <span className="text-2xl font-bold tracking-tight">Luck Live</span>
+        <span className="text-2xl font-bold tracking-tight">{t("Luck Life")}</span>
       </Link>
       <NavList onNavigate={onNavigate} />
       <div className="flex items-center gap-3 border-t border-sidebar-border px-6 py-5">
@@ -97,8 +111,8 @@ function SidebarContent({ onNavigate }: { onNavigate?: (() => void) | undefined 
           SK
         </span>
         <div className="leading-tight">
-          <p className="font-semibold">Sherluck</p>
-          <p className="text-sm text-muted-foreground">Personal workspace</p>
+          <p className="font-semibold">{t("Sherluck")}</p>
+          <p className="text-sm text-muted-foreground">{t("Personal workspace")}</p>
         </div>
       </div>
     </div>
@@ -120,9 +134,12 @@ export function AppShell({
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { openTaskDialog } = useLuckLive();
+  const t = useT();
+  const today = useTodayLabel();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen w-full overflow-x-hidden bg-background">
       <aside className="hidden w-72 shrink-0 border-e border-sidebar-border lg:block">
         <div className="sticky top-0 h-screen">
           <SidebarContent />
@@ -132,11 +149,11 @@ export function AppShell({
       {mobileOpen ? (
         <div className="fixed inset-0 z-50 lg:hidden">
           <button
-            aria-label="Close navigation"
-            className="absolute inset-0 bg-background/70 backdrop-blur-sm"
+            aria-label={t("Close navigation")}
+            className="absolute inset-0 animate-fade-in bg-background/70 backdrop-blur-sm"
             onClick={() => setMobileOpen(false)}
           />
-          <div className="absolute inset-y-0 start-0 w-72 border-e border-sidebar-border">
+          <div className="absolute inset-y-0 start-0 w-72 animate-slide-in-right border-e border-sidebar-border">
             <SidebarContent onNavigate={() => setMobileOpen(false)} />
           </div>
         </div>
@@ -145,8 +162,8 @@ export function AppShell({
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex flex-wrap items-center gap-3 px-4 py-5 sm:px-6 lg:px-10">
           <button
-            className="rounded-xl border border-border bg-card p-2.5 lg:hidden"
-            aria-label="Open navigation"
+            className="press rounded-xl border border-border bg-card p-2.5 transition-all duration-200 hover:-translate-y-0.5 lg:hidden"
+            aria-label={t("Open navigation")}
             onClick={() => setMobileOpen(true)}
           >
             <Menu className="size-5" />
@@ -154,37 +171,33 @@ export function AppShell({
           <div className="flex min-w-0 items-center gap-2 text-base">
             <Sunrise className="size-5 text-muted-foreground" />
             <span className="truncate text-muted-foreground">{today}</span>
-            <span className="hidden font-semibold sm:inline">/ {breadcrumb}</span>
+            <span className="hidden font-semibold sm:inline">/ {t(breadcrumb)}</span>
           </div>
           <div className="ms-auto flex items-center gap-2 sm:gap-3">
-            <label className="hidden items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 md:flex">
+            <label className="hidden items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 transition-colors focus-within:border-primary md:flex">
               <Search className="size-4 text-muted-foreground" />
               <input
-                placeholder="Search tasks"
+                placeholder={t("Search tasks")}
                 className="w-40 bg-transparent text-base outline-none placeholder:text-muted-foreground lg:w-56"
               />
             </label>
-            <button
-              className="rounded-2xl border border-border bg-card p-3 text-muted-foreground transition-colors hover:text-foreground"
-              aria-label="Notifications"
-            >
-              <Bell className="size-5" />
-            </button>
+            <ThemeToggle />
+            <NotificationCenter />
             <button
               onClick={() => openTaskDialog()}
-              className="flex items-center gap-2 rounded-2xl bg-primary px-4 py-3 font-semibold text-primary-foreground transition-opacity hover:opacity-90">
+              className="press flex items-center gap-2 rounded-2xl bg-primary px-4 py-3 font-semibold text-primary-foreground transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90">
               <Plus className="size-5" />
-              <span className="hidden sm:inline">Add task</span>
+              <span className="hidden sm:inline">{t("Add task")}</span>
             </button>
           </div>
         </header>
 
-        <main className="flex-1 px-4 pb-16 sm:px-6 lg:px-10">
+        <main key={pathname} className="animate-page-in flex-1 px-4 pb-16 sm:px-6 lg:px-10">
           <div className="flex flex-wrap items-end justify-between gap-2 pt-4">
             <div className="min-w-0">
-              <p className="eyebrow">{eyebrow}</p>
-              <h1 className="mt-2 text-4xl font-bold sm:text-5xl lg:text-6xl">{title}</h1>
-              <p className="mt-3 max-w-2xl text-lg text-muted-foreground">{subtitle}</p>
+              <p className="eyebrow">{t(eyebrow)}</p>
+              <h1 className="mt-2 text-4xl font-bold sm:text-5xl lg:text-6xl">{t(title)}</h1>
+              <p className="mt-3 max-w-2xl text-lg text-muted-foreground">{t(subtitle)}</p>
             </div>
             <span className="text-base text-muted-foreground">{today}</span>
           </div>

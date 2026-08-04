@@ -3,14 +3,15 @@ import { useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { CompletionChart, TaskRow } from "@/components/luck/widgets";
 import { useLuckLive } from "@/lib/luck-live-store";
+import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/tasks")({
   head: () => ({
     meta: [
-      { title: "My tasks — Luck Live" },
+      { title: "My tasks — Luck Life" },
       { name: "description", content: "Your daily task list with priorities, projects and completion tracking." },
-      { property: "og:title", content: "My tasks — Luck Live" },
+      { property: "og:title", content: "My tasks — Luck Life" },
       { property: "og:description", content: "Your daily task list with priorities, projects and completion tracking." },
     ],
   }),
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/tasks")({
 function TasksPage() {
   const { tasks, completion } = useLuckLive();
   const [range, setRange] = useState<"week" | "month">("week");
+  const t = useT();
   const done = tasks.filter((t) => t.done).length;
 
   return (
@@ -29,12 +31,12 @@ function TasksPage() {
       title="Your task list"
       subtitle="Finish the next useful thing, then let momentum do the rest."
     >
-      <section className="card-surface p-7">
+      <section className="card-surface lift p-7">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="eyebrow">Daily completion</p>
+            <p className="eyebrow">{t("Daily completion")}</p>
             <h2 className="mt-2 text-2xl font-bold">
-              {done} of {tasks.length} completed
+              {done} {t("of")} {tasks.length} {t("completed")}
             </h2>
           </div>
           <span className="text-3xl font-bold text-primary">{completion}%</span>
@@ -48,21 +50,23 @@ function TasksPage() {
       </section>
 
       <div className="mt-6 grid gap-6 xl:grid-cols-2">
-        <section className="card-surface p-7">
-          <p className="eyebrow">Today's tasks</p>
-          <h2 className="mt-2 text-2xl font-bold">Keep moving</h2>
+        <section className="card-surface lift p-7">
+          <p className="eyebrow">{t("Today's tasks")}</p>
+          <h2 className="mt-2 text-2xl font-bold">{t("Keep moving")}</h2>
           <div className="mt-4">
-            {tasks.map((t) => (
-              <TaskRow key={t.id} task={t} />
-            ))}
+            {tasks.length === 0 ? (
+              <p className="py-6 text-muted-foreground">{t("No tasks yet.")}</p>
+            ) : (
+              tasks.map((task) => <TaskRow key={task.id} task={task} />)
+            )}
           </div>
         </section>
 
-        <section className="card-surface p-7">
+        <section className="card-surface lift p-7">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="eyebrow">Momentum</p>
-              <h2 className="mt-2 text-2xl font-bold">Completion rate</h2>
+              <p className="eyebrow">{t("Momentum")}</p>
+              <h2 className="mt-2 text-2xl font-bold">{t("Completion rate")}</h2>
             </div>
             <div className="flex rounded-xl bg-muted p-1">
               {(["week", "month"] as const).map((r) => (
@@ -74,7 +78,7 @@ function TasksPage() {
                     range === r ? "bg-card text-foreground" : "text-muted-foreground",
                   )}
                 >
-                  {r}
+                  {t(r)}
                 </button>
               ))}
             </div>

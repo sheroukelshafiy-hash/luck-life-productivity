@@ -95,7 +95,7 @@ const defaultSettings: Settings = {
   timerSounds: true,
   sessionAlerts: true,
   streakReminders: false,
-  displayName: "Luck Live user",
+  displayName: "Luck Life user",
   startPage: "/",
   weekStart: "monday",
   compactMode: false,
