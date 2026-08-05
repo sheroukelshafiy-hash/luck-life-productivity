@@ -132,7 +132,7 @@ export function BarChart({
             key={d.label}
             onMouseEnter={() => setHover(i)}
             onMouseLeave={() => setHover(null)}
-            className="relative flex flex-1 flex-col items-center gap-2"
+            className="relative flex h-full flex-1 flex-col items-center justify-end gap-2"
           >
             {hover === i ? (
               <div className="absolute -top-2 z-10 -translate-y-full whitespace-nowrap rounded-xl border border-border bg-card px-3 py-2 text-xs shadow-lg">
@@ -144,7 +144,7 @@ export function BarChart({
                 ))}
               </div>
             ) : null}
-            <div className="flex h-full w-full items-end justify-center gap-1">
+            <div className="flex min-h-0 w-full flex-1 items-end justify-center gap-1">
               {series.map((s) => {
                 const v = s === "income" ? d.income : d.expense;
                 return (
