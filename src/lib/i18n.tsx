@@ -220,7 +220,6 @@ const ar: Record<string, string> = {
   "Doctor appointment": "موعد طبي",
   Travel: "سفر",
   "Personal event": "حدث شخصي",
-  Custom: "مخصص",
   Type: "النوع",
   "Start time": "وقت البداية",
   "End time": "وقت الانتهاء",
