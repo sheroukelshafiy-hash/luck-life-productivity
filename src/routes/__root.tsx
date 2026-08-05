@@ -13,6 +13,7 @@ import "../styles.css";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { LuckLiveProvider } from "../lib/luck-live-store";
+import { LifeHubProvider } from "../lib/life-hub-store";
 
 function NotFoundComponent() {
   return (
@@ -131,8 +132,10 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <LuckLiveProvider>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
+        <LifeHubProvider>
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+        </LifeHubProvider>
       </LuckLiveProvider>
     </QueryClientProvider>
   );

@@ -6,6 +6,8 @@ import { TaskRow } from "@/components/luck/widgets";
 import { useLuckLive, toISODate, todayISO } from "@/lib/luck-live-store";
 import { useT, useLocale } from "@/lib/i18n";
 import { useToday } from "@/lib/use-now";
+import { colorFor, useLifeHub, type Appointment } from "@/lib/life-hub-store";
+import { AppointmentDialog } from "@/components/lifehub/AppointmentDialog";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/calendar")({
@@ -24,6 +26,7 @@ const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 function CalendarPage() {
   const { tasks, openTaskDialog } = useLuckLive();
+  const { appointments, openAppointmentDialog } = useLifeHub();
   const t = useT();
   const locale = useLocale();
   const now = useToday();
@@ -45,6 +48,13 @@ function CalendarPage() {
     return map;
   }, [tasks]);
 
+  const apptsByDate = useMemo(() => {
+    const map = new Map<string, Appointment[]>();
+    for (const a of appointments) map.set(a.date, [...(map.get(a.date) ?? []), a]);
+    for (const list of map.values()) list.sort((x, y) => x.start.localeCompare(y.start));
+    return map;
+  }, [appointments]);
+
   const step = (delta: number) => {
     const d = new Date(year, month + delta, 1);
     setMonth(d.getMonth());
@@ -59,6 +69,7 @@ function CalendarPage() {
   };
 
   const selectedTasks = selected ? (byDate.get(selected) ?? []) : [];
+  const selectedAppointments = selected ? (apptsByDate.get(selected) ?? []) : [];
 
   return (
     <AppShell
@@ -110,6 +121,7 @@ function CalendarPage() {
             const day = i + 1;
             const iso = toISODate(new Date(year, month, day));
             const dayTasks = byDate.get(iso) ?? [];
+            const dayAppointments = apptsByDate.get(iso) ?? [];
             const complete = dayTasks.length > 0 && dayTasks.every((t) => t.done);
             const isSelected = selected === iso;
             return (
@@ -138,6 +150,18 @@ function CalendarPage() {
                 {dayTasks.length ? (
                   <span className="mt-1 text-xs text-muted-foreground">
                     {dayTasks.length} {t("tasks")}
+                  </span>
+                ) : null}
+                {dayAppointments.length ? (
+                  <span className="mt-1 flex flex-wrap gap-1">
+                    {dayAppointments.slice(0, 4).map((a) => (
+                      <span
+                        key={a.id}
+                        title={`${a.start} ${a.title}`}
+                        className="size-2 rounded-full ring-2 ring-background"
+                        style={{ background: colorFor(a.color) }}
+                      />
+                    ))}
                   </span>
                 ) : null}
                 <span className="mt-auto self-end">
@@ -174,7 +198,34 @@ function CalendarPage() {
             >
               {t("Add task")}
             </button>
+            <button
+              onClick={() => openAppointmentDialog({ date: selected })}
+              className="press rounded-xl border border-border px-4 py-3 font-semibold transition-all duration-200 hover:-translate-y-0.5 hover:bg-accent"
+            >
+              {t("Add appointment")}
+            </button>
           </div>
+          {selectedAppointments.length ? (
+            <div className="mt-4 space-y-2">
+              <p className="eyebrow">{t("Appointments")}</p>
+              {selectedAppointments.map((a) => (
+                <button
+                  key={a.id}
+                  onClick={() => openAppointmentDialog({ id: a.id })}
+                  style={{ borderInlineStartColor: colorFor(a.color) }}
+                  className="press flex w-full flex-wrap items-center gap-3 rounded-xl border border-dashed border-border border-s-4 bg-muted/30 px-4 py-3 text-start transition-colors hover:bg-accent"
+                >
+                  <span className="font-semibold">{a.title}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {a.start} – {a.end}
+                  </span>
+                  {a.location ? (
+                    <span className="text-sm text-muted-foreground">· {a.location}</span>
+                  ) : null}
+                </button>
+              ))}
+            </div>
+          ) : null}
           <div className="mt-4">
             {selectedTasks.length ? (
               selectedTasks.map((t) => <TaskRow key={t.id} task={t} />)
@@ -186,6 +237,8 @@ function CalendarPage() {
           </div>
         </section>
       ) : null}
+
+      <AppointmentDialog />
     </AppShell>
   );
 }

@@ -13,6 +13,8 @@ import {
   Menu,
   Sparkles,
   Sunrise,
+  CalendarClock,
+  Wallet,
 } from "lucide-react";
 import { useLuckLive } from "@/lib/luck-live-store";
 import { TaskDialog } from "@/components/luck/TaskDialog";
@@ -27,6 +29,11 @@ const workspace = [
   { to: "/tasks", label: "My tasks", icon: CheckSquare, badge: true },
   { to: "/insights", label: "Insights", icon: BarChart3 },
   { to: "/calendar", label: "Calendar", icon: CalendarDays },
+] as const;
+
+const lifeHub = [
+  { to: "/planner", label: "Planner", icon: CalendarClock },
+  { to: "/budget", label: "Budget", icon: Wallet },
 ] as const;
 
 const space = [
@@ -86,6 +93,13 @@ function NavList({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
       <div className="space-y-1">
         <p className="eyebrow px-4 pb-2">{t("Workspace")}</p>
         {workspace.map((i) => item(i.to, i.label, i.icon, "badge" in i && i.badge))}
+      </div>
+      <div className="space-y-1">
+        <p className="eyebrow flex items-center gap-1.5 px-4 pb-2">
+          <Sparkles className="size-3.5 text-primary" />
+          {t("Life Hub")}
+        </p>
+        {lifeHub.map((i) => item(i.to, i.label, i.icon))}
       </div>
       <div className="space-y-1">
         <p className="eyebrow px-4 pb-2">{t("Your space")}</p>
