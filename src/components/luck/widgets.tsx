@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Play, Pause, RotateCcw, SkipForward } from "lucide-react";
+import { Play, Pause, RotateCcw, SkipForward, Users, PartyPopper } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { useLuckLive, type Task } from "@/lib/luck-live-store";
 import { TaskMenu } from "@/components/luck/TaskMenu";
 import { useT } from "@/lib/i18n";
@@ -301,13 +302,49 @@ export function FlipClock({ hh, mm, ss }: { hh: string; mm: string; ss: string }
   );
 }
 
+type FocusMode = "focus" | "short" | "long";
+
+const modeLabel: Record<FocusMode, string> = {
+  focus: "Focus session",
+  short: "Short break",
+  long: "Long break",
+};
+
+/** Soft completion cue — no audio assets required. */
+function playChime(volume: number) {
+  try {
+    const Ctor =
+      window.AudioContext ??
+      (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!Ctor) return;
+    const ctx = new Ctor();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.value = 660;
+    gain.gain.value = Math.max(0, Math.min(1, volume / 100)) * 0.25;
+    osc.connect(gain).connect(ctx.destination);
+    osc.start();
+    osc.frequency.exponentialRampToValueAtTime(990, ctx.currentTime + 0.35);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.9);
+    osc.stop(ctx.currentTime + 0.95);
+  } catch {
+    /* audio unavailable */
+  }
+}
+
 export function FocusSession() {
-  const { settings } = useLuckLive();
+  const { settings, focusToday, focusTotals, logFocusSession } = useLuckLive();
   const t = useT();
+  const [mode, setMode] = useState<FocusMode>("focus");
+  const durationFor = (m: FocusMode) =>
+    (m === "focus" ? settings.focusDuration : m === "short" ? settings.shortBreak : settings.longBreak) *
+    60;
   const [total, setTotal] = useState(settings.focusDuration * 60);
   const [seconds, setSeconds] = useState(settings.focusDuration * 60);
   const [running, setRunning] = useState(false);
   const [customOpen, setCustomOpen] = useState(false);
+  const [completed, setCompleted] = useState<string | null>(null);
   const [ch, setCh] = useState("0");
   const [cm, setCm] = useState("25");
   const [cs, setCs] = useState("0");
@@ -315,10 +352,13 @@ export function FocusSession() {
   const ref = useRef<number | null>(null);
 
   useEffect(() => {
-    setTotal(settings.focusDuration * 60);
-    setSeconds(settings.focusDuration * 60);
+    const next = durationFor(mode);
+    setTotal(next);
+    setSeconds(next);
     setRunning(false);
-  }, [settings.focusDuration]);
+    setCompleted(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, settings.focusDuration, settings.shortBreak, settings.longBreak]);
 
   useEffect(() => {
     if (!running) return;
@@ -330,11 +370,33 @@ export function FocusSession() {
     };
   }, [running]);
 
+  /* Session completion: feedback, tracking and sound/notification integration. */
+  useEffect(() => {
+    if (seconds !== 0 || !running) return;
+    setRunning(false);
+    if (mode === "focus") logFocusSession(total);
+    setCompleted(mode);
+    if (settings.timerSounds) playChime(settings.soundVolume);
+    if (settings.pomodoroNotifications && typeof Notification !== "undefined") {
+      try {
+        if (Notification.permission === "granted") {
+          new Notification(t("Luck Life"), { body: t("Session complete. Nicely done.") });
+        }
+      } catch {
+        /* notifications unavailable */
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seconds, running]);
+
   const hh = String(Math.floor(seconds / 3600)).padStart(2, "0");
   const mm = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
   const ss = String(seconds % 60).padStart(2, "0");
   const presets = [15, 25, 30, 45, 60];
   const minutes = total / 60;
+  const progress = total > 0 ? ((total - seconds) / total) * 100 : 0;
+  const dailyGoalSeconds = settings.focusDuration * 60 * 4;
+  const dailyPct = Math.min(100, (focusToday.seconds / Math.max(1, dailyGoalSeconds)) * 100);
 
   const applyCustom = () => {
     const h = Number(ch);
@@ -357,16 +419,46 @@ export function FocusSession() {
     setTotal(totalSeconds);
     setSeconds(totalSeconds);
     setRunning(false);
+    setCompleted(null);
     setCustomOpen(false);
   };
 
   return (
     <section className="flex flex-col rounded-2xl bg-primary p-7 text-primary-foreground shadow-card">
-      <p className="text-xs font-bold uppercase tracking-[0.12em] opacity-80">{t("Focus session")}</p>
-      <h2 className="mt-2 text-2xl font-bold">{t("Ready when you are.")}</h2>
-      <p className="mt-1 opacity-80">{t("Deep work, no distractions.")}</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.12em] opacity-80">{t(modeLabel[mode])}</p>
+          <h2 className="mt-2 text-2xl font-bold">
+            {mode === "focus" ? t("Ready when you are.") : t("Breathe. Then come back sharper.")}
+          </h2>
+          <p className="mt-1 opacity-80">{t("Deep work, no distractions.")}</p>
+        </div>
+        <Link
+          to="/focus-together"
+          className="press flex items-center gap-2 rounded-xl border border-primary-foreground/25 px-3 py-2 text-sm font-semibold transition-all duration-200 hover:bg-primary-foreground/10"
+        >
+          <Users className="size-4" />
+          {t("Focus Together")}
+        </Link>
+      </div>
 
-      <div className="mt-6 flex flex-wrap gap-3">
+      {/* mode switcher */}
+      <div className="mt-5 flex gap-1 self-start rounded-2xl bg-primary-foreground/10 p-1">
+        {(["focus", "short", "long"] as FocusMode[]).map((m) => (
+          <button
+            key={m}
+            onClick={() => setMode(m)}
+            className={cn(
+              "rounded-xl px-3 py-2 text-sm font-semibold transition-all duration-200",
+              mode === m ? "bg-primary-foreground/25" : "opacity-75 hover:opacity-100",
+            )}
+          >
+            {t(modeLabel[m])}
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-5 flex flex-wrap gap-3">
         {presets.map((p) => (
           <button
             key={p}
@@ -374,6 +466,7 @@ export function FocusSession() {
               setTotal(p * 60);
               setSeconds(p * 60);
               setRunning(false);
+              setCompleted(null);
             }}
             className={cn(
               "press rounded-xl border border-primary-foreground/25 px-4 py-2 font-medium transition-all duration-200 hover:bg-primary-foreground/10",
@@ -449,9 +542,27 @@ export function FocusSession() {
 
       <FlipClock hh={hh} mm={mm} ss={ss} />
 
+      {/* session progress */}
+      <div className="mt-6 h-1.5 w-full overflow-hidden rounded-full bg-primary-foreground/20">
+        <div
+          style={{ width: `${progress}%` }}
+          className="h-full rounded-full bg-primary-foreground/80 transition-all duration-500"
+        />
+      </div>
+
+      {completed ? (
+        <div className="mt-5 flex items-center gap-3 rounded-2xl bg-primary-foreground/15 px-4 py-3 animate-scale-in">
+          <PartyPopper className="size-5" />
+          <p className="text-sm font-semibold">{t("Session complete. Nicely done.")}</p>
+        </div>
+      ) : null}
+
       <div className="mt-6 flex items-center gap-5">
         <button
-          onClick={() => setRunning((r) => !r)}
+          onClick={() => {
+            setCompleted(null);
+            setRunning((r) => !r);
+          }}
           aria-label={running ? t("Pause session") : t("Start session")}
           className="press flex size-14 items-center justify-center rounded-full bg-background text-primary transition-transform duration-200 hover:scale-105"
         >
@@ -463,6 +574,7 @@ export function FocusSession() {
           onClick={() => {
             setSeconds(total);
             setRunning(false);
+            setCompleted(null);
           }}
         >
           <RotateCcw className="size-6" />
@@ -478,6 +590,39 @@ export function FocusSession() {
           <SkipForward className="size-6" />
         </button>
       </div>
+
+      {/* focus tracking */}
+      <div className="mt-7 grid grid-cols-3 gap-3 border-t border-primary-foreground/20 pt-5 text-sm">
+        <div>
+          <p className="opacity-75">{t("Sessions today")}</p>
+          <p className="mt-1 text-xl font-bold tabular-nums">{focusToday.sessions}</p>
+        </div>
+        <div>
+          <p className="opacity-75">{t("Focused today")}</p>
+          <p className="mt-1 text-xl font-bold tabular-nums">
+            {Math.round(focusToday.seconds / 60)}m
+          </p>
+        </div>
+        <div>
+          <p className="opacity-75">{t("Total focus time")}</p>
+          <p className="mt-1 text-xl font-bold tabular-nums">
+            {(focusTotals.seconds / 3600).toFixed(1)}h
+          </p>
+        </div>
+      </div>
+      <div className="mt-4">
+        <div className="flex items-center justify-between text-xs opacity-80">
+          <span>{t("Daily focus goal")}</span>
+          <span className="tabular-nums">{Math.round(dailyPct)}%</span>
+        </div>
+        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-primary-foreground/20">
+          <div
+            style={{ width: `${dailyPct}%` }}
+            className="h-full rounded-full bg-primary-foreground transition-all duration-700"
+          />
+        </div>
+      </div>
     </section>
   );
 }
+

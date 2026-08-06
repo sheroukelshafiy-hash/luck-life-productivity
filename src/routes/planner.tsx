@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Clock, MapPin, Plus } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { AppointmentDialog } from "@/components/lifehub/AppointmentDialog";
+import { DayTimeline } from "@/components/lifehub/DayTimeline";
 import { useT, useLocale } from "@/lib/i18n";
 import { toISODate } from "@/lib/luck-live-store";
 import { useToday } from "@/lib/use-now";
@@ -33,7 +34,7 @@ export const Route = createFileRoute("/planner")({
   component: PlannerPage,
 });
 
-type View = "day" | "week" | "month";
+type View = "timeline" | "day" | "week" | "month";
 
 function AppointmentCard({ a, onClick }: { a: Appointment; onClick: () => void }) {
   const t = useT();
@@ -71,7 +72,7 @@ function PlannerPage() {
   const locale = useLocale();
   const now = useToday();
   const { appointments, openAppointmentDialog } = useLifeHub();
-  const [view, setView] = useState<View>("day");
+  const [view, setView] = useState<View>("timeline");
   const [cursor, setCursor] = useState(() => new Date());
 
   const byDate = useMemo(() => {
@@ -85,7 +86,7 @@ function PlannerPage() {
 
   const step = (delta: number) => {
     const d = new Date(cursor);
-    if (view === "day") d.setDate(d.getDate() + delta);
+    if (view === "day" || view === "timeline") d.setDate(d.getDate() + delta);
     else if (view === "week") d.setDate(d.getDate() + delta * 7);
     else d.setMonth(d.getMonth() + delta);
     setCursor(d);
@@ -117,7 +118,7 @@ function PlannerPage() {
           </div>
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <div className="flex gap-1 rounded-2xl bg-muted/60 p-1.5">
-              {(["day", "week", "month"] as View[]).map((v) => (
+              {(["timeline", "day", "week", "month"] as View[]).map((v) => (
                 <button
                   key={v}
                   onClick={() => setView(v)}
@@ -126,7 +127,7 @@ function PlannerPage() {
                     view === v ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
                   )}
                 >
-                  {t(v === "day" ? "Day" : v === "week" ? "Week" : "Month")}
+                  {t(v === "timeline" ? "Timeline" : v === "day" ? "Day" : v === "week" ? "Week" : "Month")}
                 </button>
               ))}
             </div>
@@ -161,6 +162,8 @@ function PlannerPage() {
         </div>
 
         <div key={`${view}-${heading}`} className="mt-6 animate-fade-in">
+          {view === "timeline" ? <DayTimeline date={toISODate(cursor)} /> : null}
+
           {view === "day" ? (
             <div className="space-y-3">
               {(byDate.get(toISODate(cursor)) ?? []).length ? (

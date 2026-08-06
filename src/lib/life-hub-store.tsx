@@ -87,22 +87,61 @@ export type Transaction = {
   notes?: string;
 };
 
+/** Supported currencies for every financial surface. */
+export const currencies = [
+  { code: "EGP", symbol: "E£", label: "Egyptian Pound" },
+  { code: "USD", symbol: "$", label: "US Dollar" },
+  { code: "EUR", symbol: "€", label: "Euro" },
+] as const;
+
+export type CurrencyCode = (typeof currencies)[number]["code"];
+
+export function currencySymbol(code: string) {
+  return currencies.find((c) => c.code === code)?.symbol ?? "$";
+}
+
+/** Older builds stored a raw symbol — normalise it to a currency code. */
+function normalizeCurrency(v: string | undefined): CurrencyCode {
+  if (!v) return "USD";
+  const byCode = currencies.find((c) => c.code === v);
+  if (byCode) return byCode.code;
+  const bySymbol = currencies.find((c) => c.symbol === v);
+  return bySymbol?.code ?? "USD";
+}
+
+/** One hour-slot activity in the daily planner. */
+export type TimeBlock = {
+  id: string;
+  date: string; // yyyy-mm-dd
+  start: string; // HH:MM
+  end: string; // HH:MM
+  title: string;
+  notes?: string;
+  color: ColorLabel;
+  done?: boolean;
+};
+
 export type AppointmentDialogState = { open: boolean; id?: string | null; date?: string | null };
 export type TxDialogState = { open: boolean; id?: string | null; kind?: TxKind };
 
 type LifeHub = {
   appointments: Appointment[];
   transactions: Transaction[];
+  timeBlocks: TimeBlock[];
   monthlyBudget: number;
-  currency: string;
+  currency: CurrencyCode;
+  symbol: string;
   setMonthlyBudget: (v: number) => void;
-  setCurrency: (v: string) => void;
+  setCurrency: (v: CurrencyCode) => void;
   addAppointment: (a: Omit<Appointment, "id">) => void;
   updateAppointment: (id: string, patch: Partial<Appointment>) => void;
   deleteAppointment: (id: string) => void;
   addTransaction: (tx: Omit<Transaction, "id">) => void;
   updateTransaction: (id: string, patch: Partial<Transaction>) => void;
   deleteTransaction: (id: string) => void;
+  addTimeBlock: (b: Omit<TimeBlock, "id">) => void;
+  updateTimeBlock: (id: string, patch: Partial<TimeBlock>) => void;
+  deleteTimeBlock: (id: string) => void;
   appointmentDialog: AppointmentDialogState;
   openAppointmentDialog: (opts?: { id?: string; date?: string }) => void;
   closeAppointmentDialog: () => void;
@@ -114,6 +153,7 @@ type LifeHub = {
 const KEY = "luck-life-hub-v1";
 
 const Ctx = createContext<LifeHub | null>(null);
+
 
 const seedAppointments: Appointment[] = [
   {
@@ -152,8 +192,9 @@ const seedTransactions: Transaction[] = [
 export function LifeHubProvider({ children }: { children: ReactNode }) {
   const [appointments, setAppointments] = useState<Appointment[]>(seedAppointments);
   const [transactions, setTransactions] = useState<Transaction[]>(seedTransactions);
+  const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
   const [monthlyBudget, setMonthlyBudget] = useState(1500);
-  const [currency, setCurrency] = useState("$");
+  const [currency, setCurrency] = useState<CurrencyCode>("USD");
   const [appointmentDialog, setAppointmentDialog] = useState<AppointmentDialogState>({ open: false });
   const [txDialog, setTxDialog] = useState<TxDialogState>({ open: false });
 
@@ -164,13 +205,15 @@ export function LifeHubProvider({ children }: { children: ReactNode }) {
       const parsed = JSON.parse(raw) as Partial<{
         appointments: Appointment[];
         transactions: Transaction[];
+        timeBlocks: TimeBlock[];
         monthlyBudget: number;
         currency: string;
       }>;
       if (parsed.appointments) setAppointments(parsed.appointments);
       if (parsed.transactions) setTransactions(parsed.transactions);
+      if (parsed.timeBlocks) setTimeBlocks(parsed.timeBlocks);
       if (typeof parsed.monthlyBudget === "number") setMonthlyBudget(parsed.monthlyBudget);
-      if (parsed.currency) setCurrency(parsed.currency);
+      if (parsed.currency) setCurrency(normalizeCurrency(parsed.currency));
     } catch {
       /* ignore corrupted state */
     }
@@ -180,19 +223,21 @@ export function LifeHubProvider({ children }: { children: ReactNode }) {
     try {
       window.localStorage.setItem(
         KEY,
-        JSON.stringify({ appointments, transactions, monthlyBudget, currency }),
+        JSON.stringify({ appointments, transactions, timeBlocks, monthlyBudget, currency }),
       );
     } catch {
       /* storage unavailable */
     }
-  }, [appointments, transactions, monthlyBudget, currency]);
+  }, [appointments, transactions, timeBlocks, monthlyBudget, currency]);
 
   const value = useMemo<LifeHub>(
     () => ({
       appointments,
       transactions,
+      timeBlocks,
       monthlyBudget,
       currency,
+      symbol: currencySymbol(currency),
       setMonthlyBudget,
       setCurrency,
       addAppointment: (a) => setAppointments((prev) => [...prev, { ...a, id: crypto.randomUUID() }]),
@@ -203,6 +248,10 @@ export function LifeHubProvider({ children }: { children: ReactNode }) {
       updateTransaction: (id, patch) =>
         setTransactions((prev) => prev.map((x) => (x.id === id ? { ...x, ...patch } : x))),
       deleteTransaction: (id) => setTransactions((prev) => prev.filter((x) => x.id !== id)),
+      addTimeBlock: (b) => setTimeBlocks((prev) => [...prev, { ...b, id: crypto.randomUUID() }]),
+      updateTimeBlock: (id, patch) =>
+        setTimeBlocks((prev) => prev.map((b) => (b.id === id ? { ...b, ...patch } : b))),
+      deleteTimeBlock: (id) => setTimeBlocks((prev) => prev.filter((b) => b.id !== id)),
       appointmentDialog,
       openAppointmentDialog: (opts) =>
         setAppointmentDialog({ open: true, id: opts?.id ?? null, date: opts?.date ?? null }),
@@ -211,8 +260,9 @@ export function LifeHubProvider({ children }: { children: ReactNode }) {
       openTxDialog: (opts) => setTxDialog({ open: true, id: opts?.id ?? null, kind: opts?.kind ?? "expense" }),
       closeTxDialog: () => setTxDialog({ open: false }),
     }),
-    [appointments, transactions, monthlyBudget, currency, appointmentDialog, txDialog],
+    [appointments, transactions, timeBlocks, monthlyBudget, currency, appointmentDialog, txDialog],
   );
+
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

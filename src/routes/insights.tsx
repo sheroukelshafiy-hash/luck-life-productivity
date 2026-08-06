@@ -23,7 +23,7 @@ function InsightsPage() {
   const { completion } = useLuckLive();
   const t = useT();
   const now = useToday();
-  const { currency } = useLifeHub();
+  const { symbol: currency } = useLifeHub();
   const budget = useBudgetSummary(now);
   const trend = useMonthlyTrend(now);
   const stats = [
