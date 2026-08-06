@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as BudgetRouteImport } from './routes/budget'
 import { Route as CalendarRouteImport } from './routes/calendar'
+import { Route as FocusTogetherRouteImport } from './routes/focus-together'
 import { Route as InsightsRouteImport } from './routes/insights'
 import { Route as PlannerRouteImport } from './routes/planner'
 import { Route as ProjectsRouteImport } from './routes/projects'
@@ -37,6 +38,11 @@ const BudgetRoute = BudgetRouteImport.update({
 const CalendarRoute = CalendarRouteImport.update({
   id: '/calendar',
   path: '/calendar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FocusTogetherRoute = FocusTogetherRouteImport.update({
+  id: '/focus-together',
+  path: '/focus-together',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InsightsRoute = InsightsRouteImport.update({
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/budget': typeof BudgetRoute
   '/calendar': typeof CalendarRoute
+  '/focus-together': typeof FocusTogetherRoute
   '/insights': typeof InsightsRoute
   '/planner': typeof PlannerRoute
   '/projects': typeof ProjectsRoute
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/budget': typeof BudgetRoute
   '/calendar': typeof CalendarRoute
+  '/focus-together': typeof FocusTogetherRoute
   '/insights': typeof InsightsRoute
   '/planner': typeof PlannerRoute
   '/projects': typeof ProjectsRoute
@@ -93,6 +101,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/budget': typeof BudgetRoute
   '/calendar': typeof CalendarRoute
+  '/focus-together': typeof FocusTogetherRoute
   '/insights': typeof InsightsRoute
   '/planner': typeof PlannerRoute
   '/projects': typeof ProjectsRoute
@@ -106,6 +115,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/budget'
     | '/calendar'
+    | '/focus-together'
     | '/insights'
     | '/planner'
     | '/projects'
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/budget'
     | '/calendar'
+    | '/focus-together'
     | '/insights'
     | '/planner'
     | '/projects'
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/budget'
     | '/calendar'
+    | '/focus-together'
     | '/insights'
     | '/planner'
     | '/projects'
@@ -140,6 +152,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   BudgetRoute: typeof BudgetRoute
   CalendarRoute: typeof CalendarRoute
+  FocusTogetherRoute: typeof FocusTogetherRoute
   InsightsRoute: typeof InsightsRoute
   PlannerRoute: typeof PlannerRoute
   ProjectsRoute: typeof ProjectsRoute
@@ -175,6 +188,13 @@ declare module '@tanstack/react-router' {
       path: '/calendar'
       fullPath: '/calendar'
       preLoaderRoute: typeof CalendarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/focus-together': {
+      id: '/focus-together'
+      path: '/focus-together'
+      fullPath: '/focus-together'
+      preLoaderRoute: typeof FocusTogetherRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/insights': {
@@ -220,6 +240,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   BudgetRoute: BudgetRoute,
   CalendarRoute: CalendarRoute,
+  FocusTogetherRoute: FocusTogetherRoute,
   InsightsRoute: InsightsRoute,
   PlannerRoute: PlannerRoute,
   ProjectsRoute: ProjectsRoute,

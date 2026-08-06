@@ -123,6 +123,9 @@ export type TaskDialogState = {
   date?: string | null;
 };
 
+/** Per-day focus tracking: completed sessions and total focused seconds. */
+export type FocusDay = { date: string; sessions: number; seconds: number };
+
 type Store = {
   tasks: Task[];
   allTasks: Task[];
@@ -138,26 +141,37 @@ type Store = {
   taskDialog: TaskDialogState;
   openTaskDialog: (opts?: { taskId?: string; date?: string }) => void;
   closeTaskDialog: () => void;
+  focusLog: FocusDay[];
+  focusToday: FocusDay;
+  focusTotals: { sessions: number; seconds: number };
+  logFocusSession: (seconds: number) => void;
 };
 
 const StoreContext = createContext<Store | null>(null);
 
 const KEY = "luck-live-state-v1";
 
+
 export function LuckLiveProvider({ children }: { children: ReactNode }) {
   const [tasks, setTasks] = useState<Task[]>(defaultTasks);
 
   const [settings, setSettings] = useState<Settings>(defaultSettings);
   const [taskDialog, setTaskDialog] = useState<TaskDialogState>({ open: false });
+  const [focusLog, setFocusLog] = useState<FocusDay[]>([]);
 
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(KEY);
       if (raw) {
-        const parsed = JSON.parse(raw) as { tasks?: Task[]; settings?: Settings };
+        const parsed = JSON.parse(raw) as {
+          tasks?: Task[];
+          settings?: Settings;
+          focusLog?: FocusDay[];
+        };
         if (parsed.tasks)
           setTasks(parsed.tasks.map((t) => ({ ...t, date: t.date ?? todayISO() })));
         if (parsed.settings) setSettings({ ...defaultSettings, ...parsed.settings });
+        if (parsed.focusLog) setFocusLog(parsed.focusLog);
       } else {
         setTasks((prev) => prev.map((t) => ({ ...t, date: t.date ?? todayISO() })));
       }
@@ -168,11 +182,12 @@ export function LuckLiveProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      window.localStorage.setItem(KEY, JSON.stringify({ tasks, settings }));
+      window.localStorage.setItem(KEY, JSON.stringify({ tasks, settings, focusLog }));
     } catch {
       /* storage unavailable */
     }
-  }, [tasks, settings]);
+  }, [tasks, settings, focusLog]);
+
 
   useEffect(() => {
     const root = document.documentElement;
@@ -201,6 +216,12 @@ export function LuckLiveProvider({ children }: { children: ReactNode }) {
   const value = useMemo<Store>(() => {
     const visible = tasks.filter((t) => !t.archived);
     const done = visible.filter((t) => t.done).length;
+    const today = todayISO();
+    const todayEntry = focusLog.find((f) => f.date === today) ?? {
+      date: today,
+      sessions: 0,
+      seconds: 0,
+    };
     return {
       tasks: visible,
       allTasks: tasks,
@@ -229,8 +250,24 @@ export function LuckLiveProvider({ children }: { children: ReactNode }) {
       openTaskDialog: (opts) =>
         setTaskDialog({ open: true, taskId: opts?.taskId ?? null, date: opts?.date ?? null }),
       closeTaskDialog: () => setTaskDialog({ open: false }),
+      focusLog,
+      focusToday: todayEntry,
+      focusTotals: focusLog.reduce(
+        (acc, f) => ({ sessions: acc.sessions + f.sessions, seconds: acc.seconds + f.seconds }),
+        { sessions: 0, seconds: 0 },
+      ),
+      logFocusSession: (seconds) =>
+        setFocusLog((prev) => {
+          const d = todayISO();
+          const found = prev.find((f) => f.date === d);
+          if (!found) return [...prev, { date: d, sessions: 1, seconds }];
+          return prev.map((f) =>
+            f.date === d ? { ...f, sessions: f.sessions + 1, seconds: f.seconds + seconds } : f,
+          );
+        }),
     };
-  }, [tasks, settings, taskDialog]);
+  }, [tasks, settings, taskDialog, focusLog]);
+
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }

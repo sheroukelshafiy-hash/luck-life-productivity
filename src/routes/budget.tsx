@@ -32,7 +32,7 @@ function BudgetPage() {
   const t = useT();
   const locale = useLocale();
   const now = useToday();
-  const { transactions, openTxDialog, currency, monthlyBudget, setMonthlyBudget } = useLifeHub();
+  const { transactions, openTxDialog, symbol: currency, monthlyBudget, setMonthlyBudget } = useLifeHub();
   const summary = useBudgetSummary(now);
   const trend = useMonthlyTrend(now);
   const [budgetDraft, setBudgetDraft] = useState("");

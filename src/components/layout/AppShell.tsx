@@ -15,6 +15,7 @@ import {
   Sunrise,
   CalendarClock,
   Wallet,
+  Users,
 } from "lucide-react";
 import { useLuckLive } from "@/lib/luck-live-store";
 import { TaskDialog } from "@/components/luck/TaskDialog";
@@ -34,6 +35,7 @@ const workspace = [
 const lifeHub = [
   { to: "/planner", label: "Planner", icon: CalendarClock },
   { to: "/budget", label: "Budget", icon: Wallet },
+  { to: "/focus-together", label: "Focus Together", icon: Users },
 ] as const;
 
 const space = [

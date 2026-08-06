@@ -20,6 +20,7 @@ import {
 import { Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/layout/AppShell";
 import { useLuckLive, type Settings } from "@/lib/luck-live-store";
+import { currencies, useLifeHub, type CurrencyCode } from "@/lib/life-hub-store";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/settings")({
@@ -226,6 +227,7 @@ function Card({
 
 function SettingsPage() {
   const { settings, updateSettings } = useLuckLive();
+  const { currency, setCurrency, symbol } = useLifeHub();
   const [active, setActive] = useState<SectionId>("general");
   const ar = settings.language === "ar";
   const set = (patch: Partial<Settings>) => updateSettings(patch);
@@ -307,6 +309,18 @@ function SettingsPage() {
                   ]}
                 />
               </Row>
+              <Row title="Currency" desc="Used across Budget and every financial view.">
+                <div className="flex items-center gap-3">
+                  <Segmented
+                    value={currency}
+                    onChange={(v) => setCurrency(v as CurrencyCode)}
+                    options={currencies.map((c) => ({ id: c.code, label: `${c.symbol} ${c.code}` }))}
+                  />
+                  <span className="rounded-xl bg-muted px-3 py-2 text-sm font-semibold text-primary">
+                    {symbol}
+                  </span>
+                </div>
+              </Row>
               <Row title="Compact mode" desc="Tighter density for smaller screens.">
                 <Toggle
                   label="Compact mode"
@@ -314,6 +328,7 @@ function SettingsPage() {
                   onChange={(v) => set({ compactMode: v })}
                 />
               </Row>
+
             </Card>
           )}
 
