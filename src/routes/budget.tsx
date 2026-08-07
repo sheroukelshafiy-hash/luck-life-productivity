@@ -7,7 +7,7 @@ import { BarChart, BudgetMeter, CategoryPie } from "@/components/lifehub/charts"
 import { CountUp } from "@/components/luck/widgets";
 import { useT, useLocale } from "@/lib/i18n";
 import { useToday } from "@/lib/use-now";
-import { useBudgetSummary, useLifeHub, useMonthlyTrend } from "@/lib/life-hub-store";
+import { currencies, useBudgetSummary, useLifeHub, useMonthlyTrend } from "@/lib/life-hub-store";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/budget")({
@@ -32,7 +32,15 @@ function BudgetPage() {
   const t = useT();
   const locale = useLocale();
   const now = useToday();
-  const { transactions, openTxDialog, symbol: currency, monthlyBudget, setMonthlyBudget } = useLifeHub();
+  const {
+    transactions,
+    openTxDialog,
+    symbol: currency,
+    currency: currencyCode,
+    setCurrency,
+    monthlyBudget,
+    setMonthlyBudget,
+  } = useLifeHub();
   const summary = useBudgetSummary(now);
   const trend = useMonthlyTrend(now);
   const [budgetDraft, setBudgetDraft] = useState("");
