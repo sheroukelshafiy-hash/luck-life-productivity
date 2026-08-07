@@ -8,8 +8,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { colorLabels, colorFor, useLifeHub, type ColorLabel, type TimeBlock } from "@/lib/life-hub-store";
-import { useT } from "@/lib/i18n";
+import { colorLabels, colorFor, useLifeHub, type ColorLabel } from "@/lib/life-hub-store";
+import { useT, useFormatTime } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 const START_HOUR = 6;
