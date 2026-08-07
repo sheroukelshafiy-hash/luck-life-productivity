@@ -118,87 +118,98 @@ export function DayTimeline({ date }: { date: string }) {
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-border">
-        {HOURS.map((h) => {
-          const list = byHour.get(h) ?? [];
-          return (
-            <div
-              key={h}
-              className="flex items-stretch gap-3 border-b border-border last:border-0 transition-colors hover:bg-muted/40"
-            >
-              <div className="w-24 shrink-0 border-e border-border px-3 py-4 text-sm tabular-nums text-muted-foreground sm:w-32">
-                <span className="block font-semibold text-foreground">{hourLabel(h)}</span>
-                <span className="block">{hourLabel(h + 1)}</span>
-              </div>
-              <div className="min-w-0 flex-1 py-2.5 pe-2.5">
-                {list.length === 0 ? (
+      <div className="relative overflow-hidden rounded-2xl border border-border">
+        {HOURS.map((h) => (
+          <button
+            key={h}
+            style={{ height: ROW }}
+            onClick={() => setDraft(emptyDraft(h))}
+            className="flex w-full items-stretch border-b border-border text-start transition-colors last:border-0 hover:bg-muted/40"
+          >
+            <span className="flex w-20 shrink-0 flex-col justify-center border-e border-border px-2 text-xs tabular-nums text-muted-foreground sm:w-28 sm:px-3 sm:text-sm">
+              <span className="block font-semibold text-foreground">{fmt(hourLabel(h))}</span>
+            </span>
+            <span className="min-w-0 flex-1" />
+          </button>
+        ))}
+
+        {/* activity layer — height and position follow the real duration */}
+        <div className="pointer-events-none absolute inset-y-0 end-0 start-20 sm:start-28">
+          <div className="relative h-full px-1.5 py-0.5">
+            {placed.map(({ b, s, e, col }) => {
+              const top = ((Math.max(s, START_HOUR * 60) - START_HOUR * 60) / 60) * ROW;
+              const height = Math.max(
+                26,
+                ((Math.min(e, END_HOUR * 60) - Math.max(s, START_HOUR * 60)) / 60) * ROW - 4,
+              );
+              return (
+                <div
+                  key={b.id}
+                  style={{
+                    top,
+                    height,
+                    insetInlineStart: `${(col * 100) / lanes}%`,
+                    width: `${100 / lanes}%`,
+                    borderInlineStartColor: colorFor(b.color),
+                  }}
+                  className="animate-fade-in pointer-events-auto absolute flex gap-2 overflow-hidden rounded-xl border border-border border-s-4 bg-card/95 px-2 py-1.5 shadow-card backdrop-blur-sm"
+                >
                   <button
-                    onClick={() => setDraft(emptyDraft(h))}
-                    className="flex h-full min-h-12 w-full items-center gap-2 rounded-xl px-3 text-start text-sm text-muted-foreground opacity-0 transition-opacity duration-200 hover:opacity-100 focus:opacity-100"
+                    aria-label={t("Toggle done")}
+                    onClick={() => updateTimeBlock(b.id, { done: !b.done })}
+                    className={cn(
+                      "press mt-0.5 flex size-4 shrink-0 items-center justify-center rounded border-2 transition-all",
+                      b.done ? "border-primary bg-primary text-primary-foreground" : "border-border",
+                    )}
                   >
-                    <Plus className="size-4" />
-                    {t("Add activity")}
+                    {b.done ? <Check className="size-2.5" /> : null}
                   </button>
-                ) : (
-                  <div className="space-y-2">
-                    {list.map((b) => (
-                      <div
-                        key={b.id}
-                        style={{ borderInlineStartColor: colorFor(b.color) }}
-                        className="animate-fade-in flex items-center gap-3 rounded-xl border border-border border-s-4 bg-muted/50 px-3 py-2.5"
-                      >
-                        <button
-                          aria-label={t("Toggle done")}
-                          onClick={() => updateTimeBlock(b.id, { done: !b.done })}
-                          className={cn(
-                            "press flex size-5 shrink-0 items-center justify-center rounded-md border-2 transition-all",
-                            b.done ? "border-primary bg-primary text-primary-foreground" : "border-border",
-                          )}
-                        >
-                          {b.done ? <Check className="size-3" /> : null}
-                        </button>
-                        <button
-                          onClick={() =>
-                            setDraft({
-                              id: b.id,
-                              title: b.title,
-                              start: b.start,
-                              end: b.end,
-                              notes: b.notes ?? "",
-                              color: b.color,
-                            })
-                          }
-                          className="min-w-0 flex-1 text-start"
-                        >
-                          <span
-                            className={cn(
-                              "block truncate font-semibold",
-                              b.done && "text-muted-foreground line-through",
-                            )}
-                          >
-                            {b.title}
-                          </span>
-                          <span className="block truncate text-sm text-muted-foreground">
-                            {b.start} – {b.end}
-                            {b.notes ? ` · ${b.notes}` : ""}
-                          </span>
-                        </button>
-                        <button
-                          aria-label={t("Delete")}
-                          onClick={() => deleteTimeBlock(b.id)}
-                          className="press rounded-lg p-2 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                        >
-                          <Trash2 className="size-4" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })}
+                  <button
+                    onClick={() =>
+                      setDraft({
+                        id: b.id,
+                        title: b.title,
+                        start: b.start,
+                        end: b.end,
+                        notes: b.notes ?? "",
+                        color: b.color,
+                      })
+                    }
+                    className="min-w-0 flex-1 text-start"
+                  >
+                    <span
+                      className={cn(
+                        "block truncate text-sm font-semibold",
+                        b.done && "text-muted-foreground line-through",
+                      )}
+                    >
+                      {b.title}
+                    </span>
+                    <span className="block truncate text-xs text-muted-foreground">
+                      {fmt(b.start)} – {fmt(b.end)}
+                      {b.notes ? ` · ${b.notes}` : ""}
+                    </span>
+                  </button>
+                  <button
+                    aria-label={t("Delete")}
+                    onClick={() => deleteTimeBlock(b.id)}
+                    className="press h-fit shrink-0 rounded-lg p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                  >
+                    <Trash2 className="size-3.5" />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
+
+      {planned === 0 ? (
+        <p className="mt-3 text-center text-sm text-muted-foreground">
+          {t("Nothing planned yet. Tap any hour to add an activity.")}
+        </p>
+      ) : null}
+
 
       <Dialog open={draft !== null} onOpenChange={(o) => !o && setDraft(null)}>
         <DialogContent className="sm:max-w-lg">
