@@ -390,7 +390,7 @@ function FocusTogetherPage() {
                         >
                           {invited === p.id ? t("Invited") : t("Invite to focus session")}
                         </DropdownMenuItem>
-                        <DropdownMenuItem variant="destructive" onClick={() => setPendingRemove(p)}>
+                        <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => setPendingRemove(p)}>
                           {t("Remove participant")}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
