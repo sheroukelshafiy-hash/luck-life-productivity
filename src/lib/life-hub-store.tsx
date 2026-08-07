@@ -121,6 +121,42 @@ export type TimeBlock = {
   done?: boolean;
 };
 
+/** Focus Together participant — stored locally, no demo users. */
+export type ParticipantStatus = "available" | "focus" | "break" | "busy" | "offline";
+
+export const participantStatuses: ParticipantStatus[] = [
+  "available",
+  "focus",
+  "break",
+  "busy",
+  "offline",
+];
+
+export const participantStatusLabel: Record<ParticipantStatus, string> = {
+  available: "Available",
+  focus: "In Focus",
+  break: "Break",
+  busy: "Busy",
+  offline: "Offline",
+};
+
+export type Participant = {
+  id: string;
+  name: string;
+  status: ParticipantStatus;
+  streak: number;
+  inRoom: boolean;
+};
+
+export function initialsOf(name: string) {
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? "")
+    .join("");
+}
+
 export type AppointmentDialogState = { open: boolean; id?: string | null; date?: string | null };
 export type TxDialogState = { open: boolean; id?: string | null; kind?: TxKind };
 
@@ -128,6 +164,7 @@ type LifeHub = {
   appointments: Appointment[];
   transactions: Transaction[];
   timeBlocks: TimeBlock[];
+  participants: Participant[];
   monthlyBudget: number;
   currency: CurrencyCode;
   symbol: string;
@@ -142,6 +179,9 @@ type LifeHub = {
   addTimeBlock: (b: Omit<TimeBlock, "id">) => void;
   updateTimeBlock: (id: string, patch: Partial<TimeBlock>) => void;
   deleteTimeBlock: (id: string) => void;
+  addParticipant: (name: string) => void;
+  updateParticipant: (id: string, patch: Partial<Participant>) => void;
+  removeParticipant: (id: string) => void;
   appointmentDialog: AppointmentDialogState;
   openAppointmentDialog: (opts?: { id?: string; date?: string }) => void;
   closeAppointmentDialog: () => void;
@@ -193,6 +233,7 @@ export function LifeHubProvider({ children }: { children: ReactNode }) {
   const [appointments, setAppointments] = useState<Appointment[]>(seedAppointments);
   const [transactions, setTransactions] = useState<Transaction[]>(seedTransactions);
   const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
+  const [participants, setParticipants] = useState<Participant[]>([]);
   const [monthlyBudget, setMonthlyBudget] = useState(1500);
   const [currency, setCurrency] = useState<CurrencyCode>("USD");
   const [appointmentDialog, setAppointmentDialog] = useState<AppointmentDialogState>({ open: false });
@@ -206,12 +247,14 @@ export function LifeHubProvider({ children }: { children: ReactNode }) {
         appointments: Appointment[];
         transactions: Transaction[];
         timeBlocks: TimeBlock[];
+        participants: Participant[];
         monthlyBudget: number;
         currency: string;
       }>;
       if (parsed.appointments) setAppointments(parsed.appointments);
       if (parsed.transactions) setTransactions(parsed.transactions);
       if (parsed.timeBlocks) setTimeBlocks(parsed.timeBlocks);
+      if (parsed.participants) setParticipants(parsed.participants);
       if (typeof parsed.monthlyBudget === "number") setMonthlyBudget(parsed.monthlyBudget);
       if (parsed.currency) setCurrency(normalizeCurrency(parsed.currency));
     } catch {
@@ -223,18 +266,19 @@ export function LifeHubProvider({ children }: { children: ReactNode }) {
     try {
       window.localStorage.setItem(
         KEY,
-        JSON.stringify({ appointments, transactions, timeBlocks, monthlyBudget, currency }),
+        JSON.stringify({ appointments, transactions, timeBlocks, participants, monthlyBudget, currency }),
       );
     } catch {
       /* storage unavailable */
     }
-  }, [appointments, transactions, timeBlocks, monthlyBudget, currency]);
+  }, [appointments, transactions, timeBlocks, participants, monthlyBudget, currency]);
 
   const value = useMemo<LifeHub>(
     () => ({
       appointments,
       transactions,
       timeBlocks,
+      participants,
       monthlyBudget,
       currency,
       symbol: currencySymbol(currency),
@@ -252,6 +296,14 @@ export function LifeHubProvider({ children }: { children: ReactNode }) {
       updateTimeBlock: (id, patch) =>
         setTimeBlocks((prev) => prev.map((b) => (b.id === id ? { ...b, ...patch } : b))),
       deleteTimeBlock: (id) => setTimeBlocks((prev) => prev.filter((b) => b.id !== id)),
+      addParticipant: (name) =>
+        setParticipants((prev) => [
+          ...prev,
+          { id: crypto.randomUUID(), name: name.trim(), status: "available", streak: 0, inRoom: false },
+        ]),
+      updateParticipant: (id, patch) =>
+        setParticipants((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p))),
+      removeParticipant: (id) => setParticipants((prev) => prev.filter((p) => p.id !== id)),
       appointmentDialog,
       openAppointmentDialog: (opts) =>
         setAppointmentDialog({ open: true, id: opts?.id ?? null, date: opts?.date ?? null }),
@@ -260,7 +312,16 @@ export function LifeHubProvider({ children }: { children: ReactNode }) {
       openTxDialog: (opts) => setTxDialog({ open: true, id: opts?.id ?? null, kind: opts?.kind ?? "expense" }),
       closeTxDialog: () => setTxDialog({ open: false }),
     }),
-    [appointments, transactions, timeBlocks, monthlyBudget, currency, appointmentDialog, txDialog],
+    [
+      appointments,
+      transactions,
+      timeBlocks,
+      participants,
+      monthlyBudget,
+      currency,
+      appointmentDialog,
+      txDialog,
+    ],
   );
 
 
