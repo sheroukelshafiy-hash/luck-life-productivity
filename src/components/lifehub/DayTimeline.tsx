@@ -12,10 +12,18 @@ import { colorLabels, colorFor, useLifeHub, type ColorLabel, type TimeBlock } fr
 import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const HOURS = Array.from({ length: 17 }, (_, i) => i + 6); // 06:00 → 22:00
+const START_HOUR = 6;
+const END_HOUR = 23; // exclusive edge — last row is 22:00 → 23:00
+const HOURS = Array.from({ length: END_HOUR - START_HOUR }, (_, i) => i + START_HOUR);
+const ROW = 64; // px per hour — blocks span proportionally
 
 const pad = (n: number) => String(n).padStart(2, "0");
 const hourLabel = (h: number) => `${pad(h)}:00`;
+const toMinutes = (hhmm: string) => {
+  const [h, m] = hhmm.split(":").map((n) => Number(n));
+  return (h ?? 0) * 60 + (m ?? 0);
+};
+
 
 type Draft = {
   id?: string;
