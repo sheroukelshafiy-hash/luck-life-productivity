@@ -557,10 +557,11 @@ export function FocusSession() {
         </div>
       ) : null}
 
-      <div className="mt-6 flex items-center gap-5">
+      <div className="mt-6 flex flex-wrap items-center gap-4 sm:gap-5">
         <button
           onClick={() => {
             setCompleted(null);
+            if (!running && seconds === 0) setSeconds(total);
             setRunning((r) => !r);
           }}
           aria-label={running ? t("Pause session") : t("Start session")}
@@ -568,6 +569,10 @@ export function FocusSession() {
         >
           {running ? <Pause className="size-6" /> : <Play className="size-6" />}
         </button>
+        <span className="text-sm font-semibold opacity-85">
+          {running ? t("Pause") : seconds === total ? t("Start") : t("Resume")}
+        </span>
+
         <button
           aria-label={t("Reset session")}
           className="press transition-transform duration-200 hover:scale-110"
