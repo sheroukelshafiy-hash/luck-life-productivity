@@ -29,6 +29,8 @@ function CalendarPage() {
   const { appointments, openAppointmentDialog } = useLifeHub();
   const t = useT();
   const locale = useLocale();
+  const fmt = useFormatTime();
+
   const now = useToday();
   const today = toISODate(now);
   const [month, setMonth] = useState(now.getMonth());
