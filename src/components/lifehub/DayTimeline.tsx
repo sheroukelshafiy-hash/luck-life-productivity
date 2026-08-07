@@ -47,21 +47,37 @@ function emptyDraft(hour: number): Draft {
 /** Premium hour-by-hour daily planner for a single date. */
 export function DayTimeline({ date }: { date: string }) {
   const t = useT();
+  const fmt = useFormatTime();
   const { timeBlocks, addTimeBlock, updateTimeBlock, deleteTimeBlock } = useLifeHub();
   const [draft, setDraft] = useState<Draft | null>(null);
   const [error, setError] = useState("");
 
-  const byHour = useMemo(() => {
-    const map = new Map<number, TimeBlock[]>();
-    for (const b of timeBlocks.filter((x) => x.date === date)) {
-      const h = Number(b.start.slice(0, 2));
-      map.set(h, [...(map.get(h) ?? []), b]);
-    }
-    for (const list of map.values()) list.sort((a, b) => a.start.localeCompare(b.start));
-    return map;
+  /** Blocks laid out by real duration, with side-by-side lanes when they overlap. */
+  const { placed, lanes } = useMemo(() => {
+    const items = timeBlocks
+      .filter((x) => x.date === date)
+      .map((b) => {
+        const s = toMinutes(b.start);
+        return { b, s, e: Math.max(toMinutes(b.end), s + 15) };
+      })
+      .sort((a, z) => a.s - z.s || a.e - z.e);
+
+    const laneEnds: number[] = [];
+    const out = items.map((it) => {
+      let col = laneEnds.findIndex((end) => end <= it.s);
+      if (col === -1) {
+        col = laneEnds.length;
+        laneEnds.push(it.e);
+      } else {
+        laneEnds[col] = it.e;
+      }
+      return { ...it, col };
+    });
+    return { placed: out, lanes: Math.max(1, laneEnds.length) };
   }, [timeBlocks, date]);
 
-  const planned = [...byHour.values()].flat().length;
+  const planned = placed.length;
+
 
   const save = () => {
     if (!draft) return;
