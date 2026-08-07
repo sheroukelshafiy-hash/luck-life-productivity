@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, Check, Circle } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { TaskRow } from "@/components/luck/widgets";
 import { useLuckLive, toISODate, todayISO } from "@/lib/luck-live-store";
-import { useT, useLocale } from "@/lib/i18n";
+import { useT, useLocale, useFormatTime } from "@/lib/i18n";
 import { useToday } from "@/lib/use-now";
 import { colorFor, useLifeHub, type Appointment } from "@/lib/life-hub-store";
 import { AppointmentDialog } from "@/components/lifehub/AppointmentDialog";
@@ -29,6 +29,8 @@ function CalendarPage() {
   const { appointments, openAppointmentDialog } = useLifeHub();
   const t = useT();
   const locale = useLocale();
+  const fmt = useFormatTime();
+
   const now = useToday();
   const today = toISODate(now);
   const [month, setMonth] = useState(now.getMonth());
@@ -157,7 +159,7 @@ function CalendarPage() {
                     {dayAppointments.slice(0, 4).map((a) => (
                       <span
                         key={a.id}
-                        title={`${a.start} ${a.title}`}
+                        title={`${fmt(a.start)} ${a.title}`}
                         className="size-2 rounded-full ring-2 ring-background"
                         style={{ background: colorFor(a.color) }}
                       />
@@ -217,7 +219,7 @@ function CalendarPage() {
                 >
                   <span className="font-semibold">{a.title}</span>
                   <span className="text-sm text-muted-foreground">
-                    {a.start} – {a.end}
+                    {fmt(a.start)} – {fmt(a.end)}
                   </span>
                   {a.location ? (
                     <span className="text-sm text-muted-foreground">· {a.location}</span>

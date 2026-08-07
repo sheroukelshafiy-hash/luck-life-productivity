@@ -277,6 +277,110 @@ const ar: Record<string, string> = {
   planned: "مخطط",
   "left this month": "متبقٍ هذا الشهر",
   "Over budget by": "تجاوز الميزانية بمقدار",
+  Currency: "العملة",
+  "Egyptian Pound": "الجنيه المصري",
+  "US Dollar": "الدولار الأمريكي",
+  Euro: "اليورو",
+
+  // Months (chart labels)
+  Jan: "يناير",
+  Feb: "فبراير",
+  Mar: "مارس",
+  Apr: "أبريل",
+  May: "مايو",
+  Jun: "يونيو",
+  Jul: "يوليو",
+  Aug: "أغسطس",
+  Sep: "سبتمبر",
+  Oct: "أكتوبر",
+  Nov: "نوفمبر",
+  Dec: "ديسمبر",
+
+  // Daily timeline
+  Timeline: "الجدول الزمني",
+  "activities planned": "أنشطة مخططة",
+  "Add activity": "إضافة نشاط",
+  "Edit activity": "تعديل النشاط",
+  "New activity": "نشاط جديد",
+  "Give this hour a purpose.": "امنح هذه الساعة هدفًا.",
+  "Give this activity a title.": "أعطِ هذا النشاط عنوانًا.",
+  "Toggle done": "تبديل الإنجاز",
+  "Nothing planned yet. Tap any hour to add an activity.":
+    "لا يوجد شيء مخطط بعد. اضغط على أي ساعة لإضافة نشاط.",
+
+  // Focus session extras
+  "Focus Together": "التركيز معًا",
+  "Life Hub / Focus": "مركز الحياة / التركيز",
+  "Short break": "استراحة قصيرة",
+  "Long break": "استراحة طويلة",
+  "Breathe. Then come back sharper.": "خذ نفسًا، ثم عد أكثر تركيزًا.",
+  "Session complete. Nicely done.": "انتهت الجلسة. أحسنت.",
+  "Sessions today": "جلسات اليوم",
+  "Focused today": "تركيز اليوم",
+  "Total focus time": "إجمالي وقت التركيز",
+  "Daily focus goal": "هدف التركيز اليومي",
+  Resume: "استئناف",
+  Start: "بدء",
+  Pause: "إيقاف مؤقت",
+  Reset: "إعادة ضبط",
+
+  // Focus Together
+  "Share a timer, keep each other accountable — quietly.":
+    "شاركوا مؤقتًا واحدًا، وحافظوا على التزامكم — بهدوء.",
+  Solo: "منفرد",
+  Together: "معًا",
+  "Solo room": "غرفة منفردة",
+  "Shared room": "غرفة مشتركة",
+  "in focus now": "في تركيز الآن",
+  "Everyone in the room shares this timer.": "كل من في الغرفة يشارك هذا المؤقت.",
+  "Room is focusing. Notifications muted.": "الغرفة في وضع التركيز. الإشعارات صامتة.",
+  "Waiting to start.": "بانتظار البدء.",
+  "Your status": "حالتك",
+  Available: "متاح",
+  Busy: "مشغول",
+  "In Focus": "في تركيز",
+  Break: "استراحة",
+  Offline: "غير متصل",
+  "Invite friends": "دعوة الأصدقاء",
+  "Share this room code. Anyone with it joins your synced timer.":
+    "شارك رمز الغرفة. أي شخص لديه الرمز ينضم إلى مؤقتك المتزامن.",
+  "Copy invite code": "نسخ رمز الدعوة",
+  Copied: "تم النسخ",
+  "No chat, ever. Focus rooms stay silent by design.":
+    "لا محادثات إطلاقًا. غرف التركيز صامتة بالتصميم.",
+  Participants: "المشاركون",
+  "Add participant": "إضافة مشارك",
+  "Participant name": "اسم المشارك",
+  "Add someone to your focus room.": "أضف شخصًا إلى غرفة تركيزك.",
+  "Enter a name.": "أدخل اسمًا.",
+  "Participant actions": "إجراءات المشارك",
+  "View profile": "عرض الملف",
+  "Invite to focus session": "دعوة لجلسة تركيز",
+  "Remove participant": "إزالة المشارك",
+  "Remove this participant?": "إزالة هذا المشارك؟",
+  "They will be removed from your focus room. This cannot be undone.":
+    "سيتم إزالته من غرفة تركيزك. لا يمكن التراجع عن هذا.",
+  Remove: "إزالة",
+  "No participants yet. Add someone to focus with.": "لا يوجد مشاركون بعد. أضف شخصًا لتركزوا معًا.",
+  "Join room": "الانضمام للغرفة",
+  "Leave room": "مغادرة الغرفة",
+  "You joined the room.": "لقد انضممت إلى الغرفة.",
+  "You are not in the room.": "أنت لست في الغرفة.",
+  "d streak": " يوم متتالٍ",
+  "Session length": "مدة الجلسة",
+  Profile: "الملف الشخصي",
+  Status: "الحالة",
+  Streak: "السلسلة",
+  Close: "إغلاق",
+  Invited: "تمت الدعوة",
+
+  // Settings extras
+  "Time format": "تنسيق الوقت",
+  "24-hour": "٢٤ ساعة",
+  "12-hour (AM/PM)": "١٢ ساعة (ص/م)",
+  "Applies to planner, calendar, tasks and notifications.":
+    "يطبق على المخطط والتقويم والمهام والإشعارات.",
+  "Used across Budget and every financial view.": "يستخدم في الميزانية وكل العروض المالية.",
 };
 
 export function useT() {
@@ -287,5 +391,22 @@ export function useT() {
 
 export function useLocale() {
   const { settings } = useLuckLive();
-  return settings.language === "ar" ? "ar" : "en-US";
+  return settings.language === "ar" ? "ar-EG" : "en-US";
 }
+
+/** Formats an "HH:MM" string using the user's Time format setting and locale. */
+export function useFormatTime() {
+  const { settings } = useLuckLive();
+  const locale = useLocale();
+  const hour12 = settings.timeFormat === "12h";
+  return useCallback(
+    (hhmm: string) => {
+      const [h, m] = hhmm.split(":").map((n) => Number(n));
+      if (!Number.isFinite(h)) return hhmm;
+      const d = new Date(2000, 0, 1, h ?? 0, m ?? 0);
+      return d.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", hour12 });
+    },
+    [locale, hour12],
+  );
+}
+

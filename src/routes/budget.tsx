@@ -7,7 +7,7 @@ import { BarChart, BudgetMeter, CategoryPie } from "@/components/lifehub/charts"
 import { CountUp } from "@/components/luck/widgets";
 import { useT, useLocale } from "@/lib/i18n";
 import { useToday } from "@/lib/use-now";
-import { useBudgetSummary, useLifeHub, useMonthlyTrend } from "@/lib/life-hub-store";
+import { currencies, useBudgetSummary, useLifeHub, useMonthlyTrend } from "@/lib/life-hub-store";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/budget")({
@@ -32,7 +32,15 @@ function BudgetPage() {
   const t = useT();
   const locale = useLocale();
   const now = useToday();
-  const { transactions, openTxDialog, symbol: currency, monthlyBudget, setMonthlyBudget } = useLifeHub();
+  const {
+    transactions,
+    openTxDialog,
+    symbol: currency,
+    currency: currencyCode,
+    setCurrency,
+    monthlyBudget,
+    setMonthlyBudget,
+  } = useLifeHub();
   const summary = useBudgetSummary(now);
   const trend = useMonthlyTrend(now);
   const [budgetDraft, setBudgetDraft] = useState("");
@@ -58,22 +66,40 @@ function BudgetPage() {
       title="Money, calmly tracked."
       subtitle="See where every unit goes and how the month is really trending."
     >
-      <div className="flex flex-wrap gap-3">
+      <div className="grid gap-3 sm:flex sm:flex-wrap sm:items-center">
         <button
           onClick={() => openTxDialog({ kind: "expense" })}
-          className="press flex items-center gap-2 rounded-2xl bg-primary px-4 py-3 font-semibold text-primary-foreground transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90"
+          className="press flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 font-semibold text-primary-foreground transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90"
         >
           <Plus className="size-5" />
           {t("Add expense")}
         </button>
         <button
           onClick={() => openTxDialog({ kind: "income" })}
-          className="press flex items-center gap-2 rounded-2xl border border-border bg-card px-4 py-3 font-semibold transition-all duration-200 hover:-translate-y-0.5 hover:bg-accent"
+          className="press flex items-center justify-center gap-2 rounded-2xl border border-border bg-card px-4 py-3 font-semibold transition-all duration-200 hover:-translate-y-0.5 hover:bg-accent"
         >
           <ArrowUpRight className="size-5 text-success" />
           {t("Add income")}
         </button>
+        <div className="flex min-w-0 items-center gap-2 rounded-2xl border border-border bg-card p-1.5 sm:ms-auto">
+          <span className="ps-2 text-sm text-muted-foreground">{t("Currency")}</span>
+          {currencies.map((c) => (
+            <button
+              key={c.code}
+              onClick={() => setCurrency(c.code)}
+              className={cn(
+                "press rounded-xl px-3 py-2 text-sm font-semibold transition-all duration-200",
+                currencyCode === c.code
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+              )}
+            >
+              {c.symbol} {c.code}
+            </button>
+          ))}
+        </div>
       </div>
+
 
       <div className="mt-6 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
         {stats.map((s, i) => (
