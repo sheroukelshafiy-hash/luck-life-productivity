@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, Clock, MapPin, Plus } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { AppointmentDialog } from "@/components/lifehub/AppointmentDialog";
 import { DayTimeline } from "@/components/lifehub/DayTimeline";
-import { useT, useLocale } from "@/lib/i18n";
+import { useT, useLocale, useFormatTime } from "@/lib/i18n";
 import { toISODate } from "@/lib/luck-live-store";
 import { useToday } from "@/lib/use-now";
 import {
@@ -38,6 +38,7 @@ type View = "timeline" | "day" | "week" | "month";
 
 function AppointmentCard({ a, onClick }: { a: Appointment; onClick: () => void }) {
   const t = useT();
+  const fmt = useFormatTime();
   return (
     <button
       onClick={onClick}
@@ -53,7 +54,7 @@ function AppointmentCard({ a, onClick }: { a: Appointment; onClick: () => void }
       <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <Clock className="size-4" />
-          {a.start} – {a.end}
+          {fmt(a.start)} – {fmt(a.end)}
         </span>
         {a.location ? (
           <span className="flex items-center gap-1.5">
@@ -71,6 +72,7 @@ function PlannerPage() {
   const t = useT();
   const locale = useLocale();
   const now = useToday();
+  const fmt = useFormatTime();
   const { appointments, openAppointmentDialog } = useLifeHub();
   const [view, setView] = useState<View>("timeline");
   const [cursor, setCursor] = useState(() => new Date());
@@ -206,7 +208,7 @@ function PlannerPage() {
                           className="press w-full rounded-lg border-s-4 bg-muted/60 px-2 py-1.5 text-start text-xs transition-colors hover:bg-accent"
                         >
                           <span className="block truncate font-medium">{a.title}</span>
-                          <span className="text-muted-foreground">{a.start}</span>
+                          <span className="text-muted-foreground">{fmt(a.start)}</span>
                         </button>
                       ))}
                     </div>
