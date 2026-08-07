@@ -309,7 +309,21 @@ function SettingsPage() {
                   ]}
                 />
               </Row>
+              <Row
+                title="Time format"
+                desc="Applies to planner, calendar, tasks and notifications."
+              >
+                <Segmented
+                  value={settings.timeFormat}
+                  onChange={(v) => set({ timeFormat: v })}
+                  options={[
+                    { id: "24h", label: "24-hour" },
+                    { id: "12h", label: "12-hour (AM/PM)" },
+                  ]}
+                />
+              </Row>
               <Row title="Currency" desc="Used across Budget and every financial view.">
+
                 <div className="flex items-center gap-3">
                   <Segmented
                     value={currency}
