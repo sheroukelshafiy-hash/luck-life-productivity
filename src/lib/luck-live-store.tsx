@@ -58,6 +58,7 @@ export type Settings = {
   fontSize: "small" | "medium" | "large";
   focusDuration: number;
   language: "en" | "ar";
+  timeFormat: "24h" | "12h";
   timerSounds: boolean;
   sessionAlerts: boolean;
   streakReminders: boolean;
@@ -92,6 +93,7 @@ const defaultSettings: Settings = {
   fontSize: "medium",
   focusDuration: 26,
   language: "en",
+  timeFormat: "24h",
   timerSounds: true,
   sessionAlerts: true,
   streakReminders: false,
